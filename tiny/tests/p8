@@ -1,0 +1,52 @@
+program multiply:
+
+	var n,m,product,sum,count: integer;
+
+	begin
+
+		n:=read;
+		m:=read;
+
+		if(n<=0) then
+		output (0)
+		else if(m<=0) then
+		output (0)
+		else
+		begin
+			if (n<=m) then 
+			else
+			begin
+				n:=n+m;
+				m:=n + -m;
+				n:=n + -m;
+			end;
+		
+			if (n<=m) then
+				if (m<=n) then
+					output (n)
+				else
+					begin
+						product := n;
+						m := m + -1;
+						while(n<=m) do
+							begin
+								sum := 0;
+								count := n+1;
+							
+								while (1<=count) do
+									begin
+										sum := sum + product;
+										count := count + -1;
+									end;
+								product := sum;
+								n := n+1;
+							end;
+						
+						output (product)
+						
+					end	
+			else;	
+		end;
+		
+
+end multiply.
