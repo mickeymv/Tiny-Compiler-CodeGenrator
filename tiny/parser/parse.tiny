@@ -18,6 +18,7 @@ Expression -> Term
 	   -> Term LTE Term				=> "<=";
 
 Term       -> Primary 
+			-> Term '-' Primary         => "-"
 	   -> Term '+' Primary				=> "+";
 
 Primary    -> '-' Primary                            	=> "-"
