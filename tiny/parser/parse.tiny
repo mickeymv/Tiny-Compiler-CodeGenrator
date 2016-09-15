@@ -15,7 +15,12 @@ Statement  -> Name ASSIGNMENT Expression          	=> "assign"
 	   ->                                        	=> "<null>";
 
 Expression -> Term	                         		
-	   -> Term LTE Term				=> "<=";
+	   -> Term LTE Term				=> "<="
+	   -> Term '=' Term				=> "="
+	   -> Term NOTEQ Term			=> "<>"
+	   -> Term GTE Term				=> ">="
+	   -> Term LT Term				=> "<"
+	   -> Term GT Term				=> ">";
 
 Term       -> Bina 
 			-> Term '-' Bina         => "-"

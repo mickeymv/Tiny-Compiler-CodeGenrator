@@ -98,8 +98,14 @@
 #define DivNode 71				/* '/' */
 #define AndNode 72				/* 'and' */
 #define ModNode 73				/* 'mod' */
+#define EqNode 74				/* 'mod' */
+#define NotEqNode 75				/* 'mod' */
+#define GTENode 76				/* 'mod' */
+#define LTNode 77				/* 'mod' */
+#define GTNode 78				/* 'mod' */
 
-#define    NumberOfNodes 73 /* '<identifier>'*/
+
+#define    NumberOfNodes 78 /* '<identifier>'*/
 typedef int Mode;
 
 FILE *CodeFile;
@@ -123,7 +129,7 @@ char *node_name[] =
     {"program","types","type","dclns","dcln","integer",
      "boolean","block","assign","output","if","while",
      "<null>","<=","+","-","read","<integer>","<identifier>","**","not","or","*",
- 	"/","and","mod"};
+ 	"/","and","mod","=","<>",">=","<",">"};
 
 
 void CodeGenerate(int argc, char *argv[])
@@ -274,6 +280,41 @@ void Expression (TreeNode T, Clabel CurrLabel)
         	CodeGen1 (BOPOP, BLE, NoLabel);
         	DecrementFrameSize();
         	break;
+			
+	        case EqNode :
+	        	Expression ( Child(T,1) , CurrLabel);
+	        	Expression ( Child(T,2) , NoLabel);
+	        	CodeGen1 (BOPOP, BEQ, NoLabel);
+	        	DecrementFrameSize();
+	        	break;
+				
+		        case NotEqNode :
+		        	Expression ( Child(T,1) , CurrLabel);
+		        	Expression ( Child(T,2) , NoLabel);
+		        	CodeGen1 (BOPOP, BNE, NoLabel);
+		        	DecrementFrameSize();
+		        	break;
+					
+			        case GTENode :
+			        	Expression ( Child(T,1) , CurrLabel);
+			        	Expression ( Child(T,2) , NoLabel);
+			        	CodeGen1 (BOPOP, BGE, NoLabel);
+			        	DecrementFrameSize();
+			        	break;
+						
+				        case LTNode :
+				        	Expression ( Child(T,1) , CurrLabel);
+				        	Expression ( Child(T,2) , NoLabel);
+				        	CodeGen1 (BOPOP, BLT, NoLabel);
+				        	DecrementFrameSize();
+				        	break;
+							
+					        case GTNode :
+					        	Expression ( Child(T,1) , CurrLabel);
+					        	Expression ( Child(T,2) , NoLabel);
+					        	CodeGen1 (BOPOP, BGT, NoLabel);
+					        	DecrementFrameSize();
+					        	break;																		
 			
 			
 	        case MultNode :
