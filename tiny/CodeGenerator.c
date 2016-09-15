@@ -91,10 +91,15 @@
 #define    ReadNode     64   /* 'read'     */
 #define    IntegerNode  65   /* '<integer>'*/
 #define    IdentifierNode 66 /* '<identifier>'*/
-#define ExponentiationNode 67	/* '**'*/
-#define NotNode 68				/* 'not'*/
+#define ExponentiationNode 67	/* '**' */
+#define NotNode 68				/* 'not' */
+#define OrNode 69				/* 'or' */
+#define MultNode 70				/* '*' */
+#define DivNode 71				/* '/' */
+#define AndNode 72				/* 'and' */
+#define ModNode 73				/* 'mod' */
 
-#define    NumberOfNodes 68 /* '<identifier>'*/
+#define    NumberOfNodes 73 /* '<identifier>'*/
 typedef int Mode;
 
 FILE *CodeFile;
@@ -117,7 +122,8 @@ char *mach_op[] =
 char *node_name[] =
     {"program","types","type","dclns","dcln","integer",
      "boolean","block","assign","output","if","while",
-     "<null>","<=","+","-","read","<integer>","<identifier>","**","not"};
+     "<null>","<=","+","-","read","<integer>","<identifier>","**","not","or","*",
+ 	"/","and","mod"};
 
 
 void CodeGenerate(int argc, char *argv[])
@@ -268,6 +274,43 @@ void Expression (TreeNode T, Clabel CurrLabel)
         	CodeGen1 (BOPOP, BLE, NoLabel);
         	DecrementFrameSize();
         	break;
+			
+			
+	        case MultNode :
+	        	Expression ( Child(T,1) , CurrLabel);
+	        	Expression ( Child(T,2) , NoLabel);
+	        	CodeGen1 (BOPOP, BMULT, NoLabel);
+	        	DecrementFrameSize();
+	        	break;		
+				
+		        case DivNode :
+		        	Expression ( Child(T,1) , CurrLabel);
+		        	Expression ( Child(T,2) , NoLabel);
+		        	CodeGen1 (BOPOP, BDIV, NoLabel);
+		        	DecrementFrameSize();
+		        	break;		
+					
+			        case AndNode :
+			        	Expression ( Child(T,1) , CurrLabel);
+			        	Expression ( Child(T,2) , NoLabel);
+			        	CodeGen1 (BOPOP, BAND, NoLabel);
+			        	DecrementFrameSize();
+			        	break;		
+	
+				        case ModNode :
+				        	Expression ( Child(T,1) , CurrLabel);
+				        	Expression ( Child(T,2) , NoLabel);
+				        	CodeGen1 (BOPOP, BMOD, NoLabel);
+				        	DecrementFrameSize();
+				        	break;		
+							
+							
+					        case OrNode :
+					        	Expression ( Child(T,1) , CurrLabel);
+					        	Expression ( Child(T,2) , NoLabel);
+					        	CodeGen1 (BOPOP, BOR, NoLabel);
+					        	DecrementFrameSize();
+					        	break;									
 		
       case PlusNode :
       Expression ( Child(T,1) , CurrLabel);

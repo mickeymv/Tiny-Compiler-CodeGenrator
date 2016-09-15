@@ -17,9 +17,16 @@ Statement  -> Name ASSIGNMENT Expression          	=> "assign"
 Expression -> Term	                         		
 	   -> Term LTE Term				=> "<=";
 
-Term       -> Primary 
-			-> Term '-' Primary         => "-"
-	   -> Term '+' Primary				=> "+";
+Term       -> Bina 
+			-> Term '-' Bina         => "-"
+			-> Term OR Bina         => "or"
+	   -> Term '+' Bina				=> "+";
+	   
+Bina   -> Primary	
+		-> Bina '*' Primary				=> "*"
+		-> Bina '/' Primary				=> "/"
+		-> Bina AND Primary				=> "and"
+   		-> Bina MOD Primary				=> "mod";
 
 Primary    -> '-' Primary                            	=> "-"
 	   -> READ                                 	=> "read"
