@@ -22,14 +22,21 @@ Term       -> Bina
 			-> Term OR Bina         => "or"
 	   -> Term '+' Bina				=> "+";
 	   
-Bina   -> Primary	
-		-> Bina '*' Primary				=> "*"
-		-> Bina '/' Primary				=> "/"
-		-> Bina AND Primary				=> "and"
-   		-> Bina MOD Primary				=> "mod";
+Bina   -> Unary	
+		-> Bina '*' Unary				=> "*"
+		-> Bina '/' Unary				=> "/"
+		-> Bina AND Unary				=> "and"
+   		-> Bina MOD Unary				=> "mod";
 
-Primary    -> '-' Primary                            	=> "-"
-	   -> READ                                 	=> "read"
+Unary    -> '-' Unary                            	=> "-"
+		-> '+' Unary                            	
+		-> NOT Unary                            	=> "not"
+		-> Expo;
+
+Expo -> Primary EXP Expo 				=> "**"
+	 -> Primary;
+
+Primary    -> READ                                 	=> "read"
            -> Name
            -> INTEGER_NUM				=> "<integer>"
            -> '(' Expression ')';

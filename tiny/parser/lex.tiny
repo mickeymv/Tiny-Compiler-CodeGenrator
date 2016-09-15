@@ -40,6 +40,7 @@ STR     \"[^\"]+\"
 "<=" 		{ return rule(LTE); }
 "read" 		{ return rule(READ); }
 "or" 		{ return rule(OR); }
+"not" 		{ return rule(NOT); }
 "and" 		{ return rule(AND); }
 "mod" 		{ return rule(MOD); }
 {INT}		{ return node(INTEGER_NUM); }
