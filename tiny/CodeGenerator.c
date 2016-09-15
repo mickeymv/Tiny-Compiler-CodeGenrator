@@ -91,8 +91,10 @@
 #define    ReadNode     64   /* 'read'     */
 #define    IntegerNode  65   /* '<integer>'*/
 #define    IdentifierNode 66 /* '<identifier>'*/
+#define ExponentiationNode 67	/* '**'*/
+#define NotNode 68				/* 'not'*/
 
-#define    NumberOfNodes 66 /* '<identifier>'*/
+#define    NumberOfNodes 68 /* '<identifier>'*/
 typedef int Mode;
 
 FILE *CodeFile;
@@ -115,7 +117,7 @@ char *mach_op[] =
 char *node_name[] =
     {"program","types","type","dclns","dcln","integer",
      "boolean","block","assign","output","if","while",
-     "<null>","<=","+","-","read","<integer>","<identifier>"};
+     "<null>","<=","+","-","read","<integer>","<identifier>","**","not"};
 
 
 void CodeGenerate(int argc, char *argv[])
@@ -253,15 +255,35 @@ void Expression (TreeNode T, Clabel CurrLabel)
 
    switch (NodeName(T))
    {
-      case LENode :
+      case ExponentiationNode :
+      	Expression ( Child(T,1) , CurrLabel);
+      	Expression ( Child(T,2) , NoLabel);
+      	CodeGen1 (BOPOP, BEXP, NoLabel);
+      	DecrementFrameSize();
+      	break;
+	
+        case LENode :
+        	Expression ( Child(T,1) , CurrLabel);
+        	Expression ( Child(T,2) , NoLabel);
+        	CodeGen1 (BOPOP, BLE, NoLabel);
+        	DecrementFrameSize();
+        	break;
+		
       case PlusNode :
-         Expression ( Child(T,1) , CurrLabel);
+      Expression ( Child(T,1) , CurrLabel);
+      if (Rank(T) == 2)
+      {
          Expression ( Child(T,2) , NoLabel);
-         if (NodeName(T) == LENode)
-            CodeGen1 (BOPOP, BLE, NoLabel);
-         else
-            CodeGen1 (BOPOP, BPLUS, NoLabel);
+         CodeGen1 (BOPOP, BPLUS, NoLabel);
          DecrementFrameSize();
+      }
+      else
+         CodeGen1 (UOPOP, NOP, NoLabel);
+      break;
+
+      case NotNode :
+         Expression ( Child(T,1) , CurrLabel);
+         CodeGen1 (UOPOP, UNOT, NoLabel);
          break;
 
       case MinusNode :

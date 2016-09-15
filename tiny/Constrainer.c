@@ -33,8 +33,10 @@
 #define ReadNode       17
 #define IntegerNode    18
 #define IdentifierNode 19
+#define ExponentiationNode 20
+#define NotNode 21
 
-#define NumberOfNodes  19
+#define NumberOfNodes  21
 
 typedef TreeNode UserType;
 
@@ -47,7 +49,8 @@ char *node[] = { "program", "types", "type", "dclns",
                  "dcln", "integer", "boolean", "block",
                  "assign", "output", "if", "while", 
                  "<null>", "<=", "+", "-", "read",
-                 "<integer>", "<identifier>" 
+                 "<integer>", "<identifier>", "**",
+				 "not" 
                 };
 
 
@@ -168,13 +171,41 @@ UserType Expression (TreeNode T)
          if (Type1 != Type2)
          {
             ErrorHeader(Child(T,1));
-            printf ("ARGUMENTS OF '<=' MUST BE TYPE INTEGER\n");
+            printf ("ARGUMENTS OF '<=' MUST BE OF SAME TYPE!\n");
             printf ("\n");
          }
          return (TypeBoolean);
+		 
+	
+         case NotNode :    
+            Type1 = Expression (Child(T,1));
+
+            if (Type1 != TypeBoolean)
+            {
+               ErrorHeader(Child(T,1));
+               printf ("ARGUMENT OF 'not' MUST BE OF TYPE BOOLEAN!\n");
+               printf ("\n");
+            }
+            return (TypeBoolean);	 
 
 
       case PlusNode :
+      Type1 = Expression (Child(T,1));
+
+      if (Rank(T) == 2)
+         Type2 = Expression (Child(T,2));
+      else  
+         Type2 = TypeInteger;
+
+      if (Type1 != TypeInteger || Type2 != TypeInteger)
+      {
+         ErrorHeader(Child(T,1));
+         printf ("ARGUMENTS OF '+', '-', '*', '/', mod ");
+         printf ("MUST BE TYPE INTEGER\n");
+         printf ("\n");
+      }
+      return (TypeInteger);
+	  	
       case MinusNode : 
          Type1 = Expression (Child(T,1));
 
@@ -191,7 +222,19 @@ UserType Expression (TreeNode T)
             printf ("\n");
          }
          return (TypeInteger);
+		 
+		 
+         case ExponentiationNode : 
+         Type1 = Expression (Child(T,1));
+         Type2 = Expression (Child(T,2));
 
+         if (Type1 != Type2 || Type2 != TypeInteger)
+         {
+            ErrorHeader(Child(T,1));
+            printf ("ARGUMENTS OF '**' MUST BE TYPE INTEGER\n");
+            printf ("\n");
+         }
+         return (TypeInteger);
  
       case ReadNode :
          return (TypeInteger);

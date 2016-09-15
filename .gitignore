@@ -35,3 +35,16 @@ tiny/CodeGenerator.o
 tiny/Constrainer.o
 tiny/parser/lex.yy.o
 tiny/parser/y.tab.o
+tiny/_CGEN
+tiny/_CONS
+tiny/CodeGen
+tiny/Constrain
+tiny/parser/code.y
+tiny/parser/lex.yy.c
+tiny/parser/parse
+tiny/parser/y.output
+tiny/parser/y.tab.c
+tiny/_CODE
+tiny/_die_
+tiny/_TEXEC
+tiny/_TREE
