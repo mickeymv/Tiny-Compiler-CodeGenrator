@@ -48,7 +48,7 @@ STR     \"[^\"]+\"
 "and" 		{ return rule(AND); }
 "mod" 		{ return rule(MOD); }
 "**" 		{ return rule(EXP); }
-"eof" 		{ return rule(EOF); }
+"eof" 		{ return rule(EOFFN); }
 "true" 		{ return rule(TRUE); }
 "false" 	{ return rule(FALSE); }
 {INT}		{ return node(INTEGER_NUM); }

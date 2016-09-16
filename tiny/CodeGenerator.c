@@ -401,7 +401,7 @@ void Expression (TreeNode T, Clabel CurrLabel)
          break;
 		 
          case EOFNode :
-            CodeGen1 (SOSOP, OSEOF, NoLabel);
+            CodeGen1 (SOSOP, OSEOF, CurrLabel);
             IncrementFrameSize();
             break;	 
 

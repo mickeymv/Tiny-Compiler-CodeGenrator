@@ -45,7 +45,7 @@ Expo -> Primary EXP Expo 				=> "**"
 	 -> Primary;
 
 Primary    -> READ                                 	=> "read"
-			-> EOF						=> "eof"
+			-> EOFFN						=> "eof"
            -> Name
 		   -> Truthvalue
            -> INTEGER_NUM				=> "<integer>"
