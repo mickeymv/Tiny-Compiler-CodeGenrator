@@ -98,14 +98,17 @@
 #define DivNode 71				/* '/' */
 #define AndNode 72				/* 'and' */
 #define ModNode 73				/* 'mod' */
-#define EqNode 74				/* 'mod' */
-#define NotEqNode 75				/* 'mod' */
-#define GTENode 76				/* 'mod' */
-#define LTNode 77				/* 'mod' */
-#define GTNode 78				/* 'mod' */
+#define EqNode 74				/* '=' */
+#define NotEqNode 75				/* '<>' */
+#define GTENode 76				/* '>=' */
+#define LTNode 77				/* '<' */
+#define GTNode 78				/* '>' */
+#define TrueNode 79				/* 'true' */
+#define FalseNode 80			/* 'false' */
+#define EOFNode 81			/* 'false' */
 
 
-#define    NumberOfNodes 78 /* '<identifier>'*/
+#define    NumberOfNodes 81 /* '<identifier>'*/
 typedef int Mode;
 
 FILE *CodeFile;
@@ -129,7 +132,7 @@ char *node_name[] =
     {"program","types","type","dclns","dcln","integer",
      "boolean","block","assign","output","if","while",
      "<null>","<=","+","-","read","<integer>","<identifier>","**","not","or","*",
- 	"/","and","mod","=","<>",">=","<",">"};
+ 	"/","and","mod","=","<>",">=","<",">","true","false","eof"};
 
 
 void CodeGenerate(int argc, char *argv[])
@@ -274,6 +277,23 @@ void Expression (TreeNode T, Clabel CurrLabel)
       	DecrementFrameSize();
       	break;
 	
+        case TrueNode :
+        CodeGen1 (LITOP, NodeName (Child(T,1)), CurrLabel);
+        IncrementFrameSize();
+        break;	
+		
+        case FalseNode :
+        CodeGen1 (LITOP, NodeName (Child(T,1)), CurrLabel);
+        IncrementFrameSize();
+        break;	
+			
+	        case GTNode :
+	        	Expression ( Child(T,1) , CurrLabel);
+	        	Expression ( Child(T,2) , NoLabel);
+	        	CodeGen1 (BOPOP, BGT, NoLabel);
+	        	DecrementFrameSize();
+	        	break;				
+	
         case LENode :
         	Expression ( Child(T,1) , CurrLabel);
         	Expression ( Child(T,2) , NoLabel);
@@ -307,14 +327,7 @@ void Expression (TreeNode T, Clabel CurrLabel)
 				        	Expression ( Child(T,2) , NoLabel);
 				        	CodeGen1 (BOPOP, BLT, NoLabel);
 				        	DecrementFrameSize();
-				        	break;
-							
-					        case GTNode :
-					        	Expression ( Child(T,1) , CurrLabel);
-					        	Expression ( Child(T,2) , NoLabel);
-					        	CodeGen1 (BOPOP, BGT, NoLabel);
-					        	DecrementFrameSize();
-					        	break;																		
+				        	break;																	
 			
 			
 	        case MultNode :
@@ -386,6 +399,11 @@ void Expression (TreeNode T, Clabel CurrLabel)
          CodeGen1 (SOSOP, OSINPUT, CurrLabel);
          IncrementFrameSize();
          break;
+		 
+         case EOFNode :
+            CodeGen1 (SOSOP, OSEOF, NoLabel);
+            IncrementFrameSize();
+            break;	 
 
       case IntegerNode :
          CodeGen1 (LITOP, NodeName (Child(T,1)), CurrLabel);

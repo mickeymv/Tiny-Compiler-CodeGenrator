@@ -45,8 +45,11 @@
 #define GTENode 29
 #define LTNode 30
 #define GTNode 31
+#define TrueNode 32
+#define FalseNode 33
+#define EOFNode 34
 
-#define NumberOfNodes  31
+#define NumberOfNodes  34
 
 typedef TreeNode UserType;
 
@@ -61,7 +64,8 @@ char *node[] = { "program", "types", "type", "dclns",
                  "<null>", "<=", "+", "-", "read",
                  "<integer>", "<identifier>", "**",
 				 "not", "or", "*", "/", "and", "mod",
-				 "=", "<>", ">=", "<", ">"
+				 "=", "<>", ">=", "<", ">", "true", "false",
+				"eof"
                 };
 
 
@@ -299,11 +303,12 @@ UserType Expression (TreeNode T)
 		 
          case OrNode :    
             Type1 = Expression (Child(T,1));
+			Type2 = Expression (Child(T,2));
 
-            if (Type1 != TypeBoolean)
+            if (Type1 != TypeBoolean || Type2 != TypeBoolean)
             {
                ErrorHeader(Child(T,1));
-               printf ("ARGUMENT OF 'or' MUST BE OF TYPE BOOLEAN!\n");
+               printf ("ARGUMENTS OF 'or' MUST BE OF TYPE BOOLEAN!\n");
                printf ("\n");
             }
             return (TypeBoolean);	 
@@ -343,6 +348,18 @@ UserType Expression (TreeNode T)
          }
          return (TypeInteger);
 		 
+         case NotNode : 
+            Type1 = Expression (Child(T,1));
+
+            if (Type1 != TypeBoolean)
+            {
+               ErrorHeader(Child(T,1));
+               printf ("ARGUMENT OF 'not' ");
+               printf ("MUST BE of TYPE BOOLEAN\n");
+               printf ("\n");
+            }
+            return (TypeBoolean);
+		 
 		 
          case ExponentiationNode : 
          Type1 = Expression (Child(T,1));
@@ -359,9 +376,18 @@ UserType Expression (TreeNode T)
       case ReadNode :
          return (TypeInteger);
 
+         case EOFNode :
+            return (TypeBoolean);
 
       case IntegerNode : 
          return (TypeInteger);
+		 
+	
+         case TrueNode : 
+            return (TypeBoolean);
+			
+         case FalseNode : 
+            return (TypeBoolean);		 
 
 
       case IdentifierNode :
