@@ -7,13 +7,15 @@ Type       -> INTEGER 		             		=> "integer"
            -> BOOLEAN				     	=> "boolean";
 Body       -> BEGINX Statement list ';' END      	=> "block";
 Statement  -> Name ASSIGNMENT Expression          	=> "assign"
-           -> OUTPUT '(' Expression ')'           	=> "output"
+           -> OUTPUT '(' Expressions ')'           	=> "output"
            -> IF Expression THEN Statement
                             ELSE Statement       	=> "if"
            -> IF Expression THEN Statement       	=> "if"
            -> WHILE Expression DO Statement      	=> "while"
            -> Body
 	   ->                                        	=> "<null>";
+	   
+Expressions -> 	 Expression list ',' ;
 
 Expression -> Term	                         		
 	   -> Term LTE Term				=> "<="
