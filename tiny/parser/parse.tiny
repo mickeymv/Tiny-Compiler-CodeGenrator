@@ -10,6 +10,7 @@ Statement  -> Name ASSIGNMENT Expression          	=> "assign"
            -> OUTPUT '(' Expression ')'           	=> "output"
            -> IF Expression THEN Statement
                             ELSE Statement       	=> "if"
+           -> IF Expression THEN Statement       	=> "if"
            -> WHILE Expression DO Statement      	=> "while"
            -> Body
 	   ->                                        	=> "<null>";
