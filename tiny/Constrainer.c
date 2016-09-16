@@ -325,8 +325,8 @@ UserType Expression (TreeNode T)
       if (Type1 != TypeInteger || Type2 != TypeInteger)
       {
          ErrorHeader(Child(T,1));
-         printf ("ARGUMENTS OF '+', '-', '*', '/', mod ");
-         printf ("MUST BE TYPE INTEGER\n");
+         printf ("ARGUMENTS OF '+' ");
+         printf ("MUST BE OF TYPE INTEGER!\n");
          printf ("\n");
       }
       return (TypeInteger);
@@ -342,8 +342,8 @@ UserType Expression (TreeNode T)
          if (Type1 != TypeInteger || Type2 != TypeInteger)
          {
             ErrorHeader(Child(T,1));
-            printf ("ARGUMENTS OF '+', '-', '*', '/', mod ");
-            printf ("MUST BE TYPE INTEGER\n");
+            printf ("ARGUMENTS OF '-' ");
+            printf ("MUST BE OF TYPE INTEGER!\n");
             printf ("\n");
          }
          return (TypeInteger);

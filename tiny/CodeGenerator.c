@@ -278,12 +278,12 @@ void Expression (TreeNode T, Clabel CurrLabel)
       	break;
 	
         case TrueNode :
-        CodeGen1 (LITOP, NodeName (Child(T,1)), CurrLabel);
+        CodeGen1 (LITOP, MakeStringOf(1), CurrLabel); 
         IncrementFrameSize();
         break;	
 		
         case FalseNode :
-        CodeGen1 (LITOP, NodeName (Child(T,1)), CurrLabel);
+        CodeGen1 (LITOP, MakeStringOf(0), CurrLabel); 
         IncrementFrameSize();
         break;	
 			
