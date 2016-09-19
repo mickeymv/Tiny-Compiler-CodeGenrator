@@ -1,0 +1,57 @@
+%%
+Tiny       -> PROGRAM Name ':' Dclns Body Name '.' 	=> "program";
+Dclns      -> VAR (Dcln ';')*				=> "dclns"
+           -> 					     	=> "dclns";
+Dcln       -> Name list ',' ':' Type			=> "dcln";
+Type       -> INTEGER 		             		=> "integer"
+           -> BOOLEAN				     	=> "boolean";
+Body       -> BEGINX Statement list ';' END      	=> "block";
+Statement  -> Name ASSIGNMENT Expression          	=> "assign"
+           -> OUTPUT '(' Expressions ')'           	=> "output"
+           -> IF Expression THEN Statement
+                            ELSE Statement       	=> "if"
+           -> IF Expression THEN Statement       	=> "if"
+           -> WHILE Expression DO Statement      	=> "while"
+           -> Body
+	   ->                                        	=> "<null>";
+	   
+Expressions -> 	 Expression list ',' ;
+
+Expression -> Term	                         		
+	   -> Term LTE Term				=> "<="
+	   -> Term '=' Term				=> "="
+	   -> Term NOTEQ Term			=> "<>"
+	   -> Term GTE Term				=> ">="
+	   -> Term LT Term				=> "<"
+	   -> Term GT Term				=> ">";
+
+Term       -> Bina 
+			-> Term '-' Bina         => "-"
+			-> Term OR Bina         => "or"
+	   -> Term '+' Bina				=> "+";
+	   
+Bina   -> Unary	
+		-> Bina '*' Unary				=> "*"
+		-> Bina '/' Unary				=> "/"
+		-> Bina AND Unary				=> "and"
+   		-> Bina MOD Unary				=> "mod";
+
+Unary    -> '-' Unary                            	=> "-"
+		-> '+' Unary                            	
+		-> NOT Unary                            	=> "not"
+		-> Expo;
+
+Expo -> Primary EXP Expo 				=> "**"
+	 -> Primary;
+
+Primary    -> READ                                 	=> "read"
+			-> EOFFN						=> "eof"
+           -> Name
+		   -> Truthvalue
+           -> INTEGER_NUM				=> "<integer>"
+           -> '(' Expression ')';
+
+Name       -> IDENTIFIER				=> "<identifier>";
+
+Truthvalue -> TRUE						=> "true"
+			->	FALSE					=> "false";
