@@ -105,10 +105,11 @@
 #define GTNode 78				/* '>' */
 #define TrueNode 79				/* 'true' */
 #define FalseNode 80			/* 'false' */
-#define EOFNode 81			/* 'false' */
+#define EOFNode 81				/* 'eof' */
+#define RepeatNode 82				/* 'repeat' */
 
 
-#define    NumberOfNodes 81 /* '<identifier>'*/
+#define    NumberOfNodes 82 /* '<identifier>'*/
 typedef int Mode;
 
 FILE *CodeFile;
@@ -132,7 +133,7 @@ char *node_name[] =
     {"program","types","type","dclns","dcln","integer",
      "boolean","block","assign","output","if","while",
      "<null>","<=","+","-","read","<integer>","<identifier>","**","not","or","*",
- 	"/","and","mod","=","<>",">=","<",">","true","false","eof"};
+ 	"/","and","mod","=","<>",">=","<",">","true","false","eof","repeat"};
 
 
 void CodeGenerate(int argc, char *argv[])
@@ -529,6 +530,26 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
          DecrementFrameSize();
          CodeGen1 (GOTOOP, Label1, ProcessNode (Child(T,2), Label2) );
          return (Label3);
+		 
+		
+         case RepeatNode :
+            if (CurrLabel == NoLabel) 
+               Label1 = MakeLabel();
+            else 
+               Label1 = CurrLabel;
+            Label2 = MakeLabel();
+			if (NKids(T)>1) {
+				ProcessNode (Child(T,1), Label1);
+	            for (Kid = 2; Kid < NKids(T); Kid++)
+	            {
+	               ProcessNode (Child(T,Kid), NoLabel);
+	            }
+			}
+
+            Expression (Child(T,NKids(T)), NoLabel);
+            CodeGen2 (CONDOP, Label2, Label1, NoLabel);
+            DecrementFrameSize();
+            return (Label2);	 
 
 
        case NullNode : return(CurrLabel);

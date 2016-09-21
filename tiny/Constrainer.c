@@ -48,8 +48,9 @@
 #define TrueNode 32
 #define FalseNode 33
 #define EOFNode 34
+#define RepeatNode 35
 
-#define NumberOfNodes  34
+#define NumberOfNodes  35
 
 typedef TreeNode UserType;
 
@@ -65,7 +66,7 @@ char *node[] = { "program", "types", "type", "dclns",
                  "<integer>", "<identifier>", "**",
 				 "not", "or", "*", "/", "and", "mod",
 				 "=", "<>", ">=", "<", ">", "true", "false",
-				"eof"
+				"eof", "repeat"
                 };
 
 
@@ -535,6 +536,20 @@ void ProcessNode (TreeNode T)
          }
          ProcessNode (Child(T,2));
          break;
+		 
+         case RepeatNode :
+            if (Expression (Child(T,NKids(T))) != TypeBoolean)
+            {
+               ErrorHeader(T);
+               printf ("Repeat's EXPRESSION NOT OF TYPE BOOLEAN!\n");
+               printf ("\n");
+            }
+			if(NKids(T) > 1) {
+				for(Kid=1;Kid<NKids(T);Kid++) {
+					ProcessNode (Child(T,Kid));
+				}
+			}
+            break;
 
 
       case NullNode : 

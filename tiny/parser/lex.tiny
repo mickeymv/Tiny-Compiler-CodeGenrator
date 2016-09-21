@@ -51,6 +51,8 @@ STR     \"[^\"]+\"
 "eof" 		{ return rule(EOFFN); }
 "true" 		{ return rule(TRUE); }
 "false" 	{ return rule(FALSE); }
+"repeat" 	{ return rule(REPEAT); }
+"until" 	{ return rule(UNTIL); }
 {INT}		{ return node(INTEGER_NUM); }
 {IDENT}		{ return node(IDENTIFIER); }
 "{"		{ column += yyleng; BEGIN( COMM1 ); }

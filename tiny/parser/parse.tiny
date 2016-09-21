@@ -13,7 +13,10 @@ Statement  -> Name ASSIGNMENT Expression          	=> "assign"
            -> IF Expression THEN Statement       	=> "if"
            -> WHILE Expression DO Statement      	=> "while"
            -> Body
+		   -> REPEAT Statements UNTIL Expression			=> "repeat"
 	   ->                                        	=> "<null>";
+	   
+Statements	->	Statement list ';' ;
 	   
 Expressions -> 	 Expression list ',' ;
 
