@@ -7,6 +7,7 @@ Type       -> INTEGER 		             		=> "integer"
            -> BOOLEAN				     	=> "boolean";
 Body       -> BEGINX Statement list ';' END      	=> "block";
 Statement  -> Name ASSIGNMENT Expression          	=> "assign"
+			-> Name SWAP Name          				=> "swap"
            -> OUTPUT '(' Expressions ')'           	=> "output"
            -> IF Expression THEN Statement
                             ELSE Statement       	=> "if"

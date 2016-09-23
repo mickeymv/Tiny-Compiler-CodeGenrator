@@ -49,8 +49,9 @@
 #define FalseNode 33
 #define EOFNode 34
 #define RepeatNode 35
+#define SwapNode 36
 
-#define NumberOfNodes  35
+#define NumberOfNodes  36
 
 typedef TreeNode UserType;
 
@@ -66,7 +67,7 @@ char *node[] = { "program", "types", "type", "dclns",
                  "<integer>", "<identifier>", "**",
 				 "not", "or", "*", "/", "and", "mod",
 				 "=", "<>", ">=", "<", ">", "true", "false",
-				"eof", "repeat"
+				"eof", "repeat", "swap"
                 };
 
 
@@ -499,6 +500,18 @@ void ProcessNode (TreeNode T)
             printf ("\n");
          }
          break;
+		 
+         case SwapNode :
+            Type1 = Expression (Child(T,1));
+            Type2 = Expression (Child(T,2));
+
+            if (Type1 != Type2)
+            {
+               ErrorHeader(T);
+               printf ("Swap TYPES DO NOT MATCH!\n");
+               printf ("\n");
+            }
+            break;	 
 
 
       case OutputNode :

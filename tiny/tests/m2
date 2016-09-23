@@ -9,7 +9,7 @@ begin
     repeat
 	  output (read);
           count := count + 1;
-    (count = 3);
+    until (count = 3);
 x := 9;
 output(x);
 end copy.

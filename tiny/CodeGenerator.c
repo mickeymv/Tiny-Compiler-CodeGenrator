@@ -107,9 +107,10 @@
 #define FalseNode 80			/* 'false' */
 #define EOFNode 81				/* 'eof' */
 #define RepeatNode 82				/* 'repeat' */
+#define SwapNode 83			/* 'swap' */
 
 
-#define    NumberOfNodes 82 /* '<identifier>'*/
+#define    NumberOfNodes 83 /* '<identifier>'*/
 typedef int Mode;
 
 FILE *CodeFile;
@@ -133,7 +134,7 @@ char *node_name[] =
     {"program","types","type","dclns","dcln","integer",
      "boolean","block","assign","output","if","while",
      "<null>","<=","+","-","read","<integer>","<identifier>","**","not","or","*",
- 	"/","and","mod","=","<>",">=","<",">","true","false","eof","repeat"};
+ 	"/","and","mod","=","<>",">=","<",">","true","false","eof","repeat","swap"};
 
 
 void CodeGenerate(int argc, char *argv[])
@@ -487,6 +488,13 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
          Expression (Child(T,2), CurrLabel);
          Reference (Child(T,1), LeftMode, NoLabel);
          return (NoLabel);
+		 
+     case SwapNode :
+		 	Reference (Child(T,1), RightMode, CurrLabel);
+            Reference (Child(T,2), RightMode, CurrLabel);
+            Reference (Child(T,1), LeftMode, NoLabel);
+			Reference (Child(T,2), LeftMode, NoLabel);
+            return (NoLabel);	 
 
 
       case OutputNode :

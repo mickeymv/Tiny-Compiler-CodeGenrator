@@ -1,0 +1,19 @@
+program pr2c02:
+
+var x,y,i: integer;
+   
+begin
+x:=3;
+   y:=6;
+   
+   
+   begin
+    
+  	output(x,y);
+      x :=: y;
+      
+      output(x,y);
+      
+   end
+   
+end pr2c02.

@@ -31,6 +31,7 @@ STR     \"[^\"]+\"
 "begin" 	{ return rule(BEGINX); }
 "end" 		{ return rule(END); }
 ":=" 		{ return rule(ASSIGNMENT); }
+":=:" 		{ return rule(SWAP); }
 "output" 	{ return rule(OUTPUT); }
 "if" 		{ return rule(IF); }
 "then" 		{ return rule(THEN); }
