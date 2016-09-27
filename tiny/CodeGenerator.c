@@ -431,7 +431,7 @@ void Expression (TreeNode T, Clabel CurrLabel)
 Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 {
    int Kid, Num;
-   Clabel Label1, Label2, Label3;
+   Clabel Label1, Label2, Label3, CascadeLabel;
 
    if (TraceSpecified)
    {
@@ -547,14 +547,14 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
                Label1 = CurrLabel;
             Label2 = MakeLabel();
 			if (NKids(T)>1) {
-				ProcessNode (Child(T,1), Label1);
+				CascadeLabel = ProcessNode (Child(T,1), Label1);
 	            for (Kid = 2; Kid < NKids(T); Kid++)
 	            {
-	               ProcessNode (Child(T,Kid), NoLabel);
+	               CascadeLabel = ProcessNode (Child(T,Kid),CascadeLabel);
 	            }
 			}
 
-            Expression (Child(T,NKids(T)), NoLabel);
+            Expression (Child(T,NKids(T)), CascadeLabel); //The nth child would be the until expression
             CodeGen2 (CONDOP, Label2, Label1, NoLabel);
             DecrementFrameSize();
             return (Label2);	 
