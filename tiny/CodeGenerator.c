@@ -108,9 +108,11 @@
 #define EOFNode 81				/* 'eof' */
 #define RepeatNode 82				/* 'repeat' */
 #define SwapNode 83			/* 'swap' */
+#define LoopNode 84			/* 'swap' */
+#define ExitNode 85			/* 'swap' */
 
 
-#define    NumberOfNodes 83 /* '<identifier>'*/
+#define    NumberOfNodes 85 /* '<identifier>'*/
 typedef int Mode;
 
 FILE *CodeFile;
@@ -134,7 +136,8 @@ char *node_name[] =
     {"program","types","type","dclns","dcln","integer",
      "boolean","block","assign","output","if","while",
      "<null>","<=","+","-","read","<integer>","<identifier>","**","not","or","*",
- 	"/","and","mod","=","<>",">=","<",">","true","false","eof","repeat","swap"};
+ 	"/","and","mod","=","<>",">=","<",">","true","false","eof","repeat","swap","loop",
+	"exit"};
 
 
 void CodeGenerate(int argc, char *argv[])
@@ -540,24 +543,44 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
          return (Label3);
 		 
 		
-         case RepeatNode :
-            if (CurrLabel == NoLabel) 
+      case LoopNode :
+			if (CurrLabel == NoLabel) 
                Label1 = MakeLabel();
             else 
                Label1 = CurrLabel;
             Label2 = MakeLabel();
-			if (NKids(T)>1) {
-				CascadeLabel = ProcessNode (Child(T,1), Label1);
-	            for (Kid = 2; Kid < NKids(T); Kid++)
+			Decorate(T,Label2); //The exit label for this loop node, which is used by the enclosed exit.
+				CascadeLabel = Label1;
+	            for (Kid = 1; Kid <= NKids(T); Kid++)
 	            {
 	               CascadeLabel = ProcessNode (Child(T,Kid),CascadeLabel);
 	            }
-			}
+            CodeGen1 (GOTOOP, Label1, CascadeLabel); //After processing the loop's enclosing children statements, go back to start of the loop and repeat all the enclosing statements.
+            return (Label2); //Label2 is the exit label for the loop construct
+			
+	 case ExitNode :
+				Label1 = Decoration(Decoration(T)); //Get the decoration of the exit (which is its enclosing loop stmt), then get its decoration (which is the exit label for that loop stmt)			
+				CodeGen1 (GOTOOP, Label1, CurrLabel);
+			return(NoLabel);
+			
+        case RepeatNode :
+               if (CurrLabel == NoLabel) 
+                  Label1 = MakeLabel();
+               else 
+                  Label1 = CurrLabel;
+               Label2 = MakeLabel();
+   			if (NKids(T)>1) {
+   				CascadeLabel = ProcessNode (Child(T,1), Label1);
+   	            for (Kid = 2; Kid < NKids(T); Kid++)
+   	            {
+   	               CascadeLabel = ProcessNode (Child(T,Kid),CascadeLabel);
+   	            }
+   			}
 
-            Expression (Child(T,NKids(T)), CascadeLabel); //The nth child would be the until expression
-            CodeGen2 (CONDOP, Label2, Label1, NoLabel);
-            DecrementFrameSize();
-            return (Label2);	 
+               Expression (Child(T,NKids(T)), CascadeLabel); //The nth child would be the until expression
+               CodeGen2 (CONDOP, Label2, Label1, NoLabel);
+               DecrementFrameSize();
+               return (Label2);				 
 
 
        case NullNode : return(CurrLabel);

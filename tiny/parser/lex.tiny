@@ -24,7 +24,7 @@ STR     \"[^\"]+\"
 
 {WHITE}    	{ column += yyleng; }
 \n         	{ column = 1; line++; }
-"program"    	{ return rule(PROGRAM); }
+"program"   { return rule(PROGRAM); }
 "var" 		{ return rule(VAR); }
 "integer" 	{ return rule(INTEGER); }
 "boolean" 	{ return rule(BOOLEAN); }
@@ -54,6 +54,9 @@ STR     \"[^\"]+\"
 "false" 	{ return rule(FALSE); }
 "repeat" 	{ return rule(REPEAT); }
 "until" 	{ return rule(UNTIL); }
+"loop" 		{ return rule(LOOP); }
+"pool" 		{ return rule(POOL); }
+"exit" 		{ return rule(EXIT); }
 {INT}		{ return node(INTEGER_NUM); }
 {IDENT}		{ return node(IDENTIFIER); }
 "{"		{ column += yyleng; BEGIN( COMM1 ); }

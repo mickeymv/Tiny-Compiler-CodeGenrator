@@ -1,0 +1,9 @@
+program pr2c03:
+var x: integer;
+begin
+   loop
+      x := read;
+      if (x=10) then 
+	 exit;
+   pool
+end pr2c03.

@@ -50,8 +50,11 @@
 #define EOFNode 34
 #define RepeatNode 35
 #define SwapNode 36
+#define LOOP_CTXT 37
+#define LoopNode 38
+#define ExitNode 39
 
-#define NumberOfNodes  36
+#define NumberOfNodes  39
 
 typedef TreeNode UserType;
 
@@ -67,7 +70,8 @@ char *node[] = { "program", "types", "type", "dclns",
                  "<integer>", "<identifier>", "**",
 				 "not", "or", "*", "/", "and", "mod",
 				 "=", "<>", ">=", "<", ">", "true", "false",
-				"eof", "repeat", "swap"
+				"eof", "repeat", "swap", "<loop_ctxt>", "loop",
+				"exit"
                 };
 
 
@@ -419,7 +423,7 @@ void ProcessNode (TreeNode T)
 {
    int Kid, N;
    String Name1, Name2;
-   TreeNode Type1, Type2, Type3;
+   TreeNode Type1, Type2, Type3, Temp;
 
    if (TraceSpecified)
    {
@@ -433,6 +437,7 @@ void ProcessNode (TreeNode T)
    {
       case ProgramNode : 
          OpenScope();
+		 DTEnter(LOOP_CTXT,T,T);
          Name1 = NodeName(Child(Child(T,1),1));
          Name2 = NodeName(Child(Child(T,NKids(T)),1));
 
@@ -447,6 +452,27 @@ void ProcessNode (TreeNode T)
             ProcessNode (Child(T,Kid));
          CloseScope();
          break;
+		
+         case LoopNode : 
+            OpenScope();
+   		 	DTEnter(LOOP_CTXT,T,T);
+            for (Kid = 1; Kid <= NKids(T); Kid++)
+               ProcessNode (Child(T,Kid));
+            CloseScope();
+			if (Decoration(T) == 0)
+			{
+                printf ("\nWarning: No 'exit' in 'loop' construct.\n");
+			}
+            break;	 
+			
+        case ExitNode : 
+			Temp = Lookup(LOOP_CTXT,T);
+			if (NodeName(Temp) != LoopNode) {
+				printf ("\nError: 'exit' not in a 'loop' construct.\n");
+			}
+			Decorate(T,Temp);
+			Decorate(Temp,T);
+            break;		
 
 
       case TypesNode :  

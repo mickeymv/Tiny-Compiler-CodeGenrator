@@ -15,7 +15,9 @@ Statement  -> Name ASSIGNMENT Expression          	=> "assign"
            -> WHILE Expression DO Statement      	=> "while"
            -> Body
 		   -> REPEAT Statements UNTIL Expression			=> "repeat"
-	   ->                                        	=> "<null>";
+	   	   ->                                        	=> "<null>"
+		   -> EXIT									=> "exit"
+		   -> LOOP Statements POOL					=> "loop";
 	   
 Statements	->	Statement list ';' ;
 	   
