@@ -535,7 +535,7 @@ void ProcessNode (TreeNode T)
  			while(NodeName(Temp) != ProgramNode) {
  				if (NodeName(Child(Child(Temp,1),1)) == NodeName(Child(Child(T,1),1))) {
  	                ErrorHeader(T);
- 	                printf ("\nEnclosed variables must have different names than enclosing for loops' loop control variables!\n");
+ 	                printf ("Assigned variable must have a different name than enclosing for loops' loop control variables!\n");
  				}
  				Temp = Decoration(Temp); //Get parent enclosing for loop
  			}
@@ -551,6 +551,15 @@ void ProcessNode (TreeNode T)
                printf ("Swap TYPES DO NOT MATCH!\n");
                printf ("\n");
             }
+	 	 	Temp = Lookup(FOR_CTXT,T); 		
+	 			// the two variable must be different from all enclosing for loops' control variables.
+	 			while(NodeName(Temp) != ProgramNode) {
+	 				if (NodeName(Child(Child(Temp,1),1)) == NodeName(Child(Child(T,1),1)) || NodeName(Child(Child(Temp,1),1)) == NodeName(Child(Child(T,2),1))) {
+	 	                ErrorHeader(T);
+	 	                printf ("Swap variables must have different names than enclosing for loops' loop control variables!\n");
+	 				}
+	 				Temp = Decoration(Temp); //Get parent enclosing for loop
+	 			}
             break;	 
 
 
@@ -603,13 +612,18 @@ void ProcessNode (TreeNode T)
                ErrorHeader(T);
                printf ("\nInitial and final values must have same type as loop control variable!\n");
             }
+			
+			ProcessNode(Child(T,4));
+						
 			// this forUpto's control variable must be different from all enclosing for loops.
+			
 			while(NodeName(Temp) != ProgramNode) {
+				
 				if (NodeName(Child(Child(Temp,1),1)) == NodeName(Child(Child(T,1),1))) {
 	                ErrorHeader(T);
 	                printf ("\nEnclosing for loops must have different loop control variables!\n");
 				}
-				Temp = Decoration(Temp); //Get parent enclosing for loop
+				Temp = Decoration(Temp); //Get parent's enclosing for loop
 			}
 			CloseScope();
             break;	 
