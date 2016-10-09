@@ -472,7 +472,8 @@ void ProcessNode (TreeNode T)
         case ExitNode : 
 			Temp = Lookup(LOOP_CTXT,T);
 			if (NodeName(Temp) != LoopNode) {
-				printf ("\nError: 'exit' not in a 'loop' construct.\n");
+				ErrorHeader(T);
+				printf ("'exit' not in a 'loop' construct.\n");
 			}
 			Decorate(T,Temp);
 			Decorate(Temp,T);
@@ -610,7 +611,7 @@ void ProcessNode (TreeNode T)
             if (Expression (Child(T,1)) != Expression (Child(T,2)) || Expression (Child(T,1)) != Expression (Child(T,3)))
             {
                ErrorHeader(T);
-               printf ("\nInitial and final values must have same type as loop control variable!\n");
+               printf ("Initial and final values must have same type as loop control variable!\n");
             }
 			
 			ProcessNode(Child(T,4));
@@ -621,7 +622,7 @@ void ProcessNode (TreeNode T)
 				
 				if (NodeName(Child(Child(Temp,1),1)) == NodeName(Child(Child(T,1),1))) {
 	                ErrorHeader(T);
-	                printf ("\nEnclosing for loops must have different loop control variables!\n");
+	                printf ("Enclosing for loops must have different loop control variables!\n");
 				}
 				Temp = Decoration(Temp); //Get parent's enclosing for loop
 			}
