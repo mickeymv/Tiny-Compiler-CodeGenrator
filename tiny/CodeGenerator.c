@@ -111,9 +111,10 @@
 #define LoopNode 84			/* 'loop' */
 #define ExitNode 85			/* 'exit' */
 #define ForUptoNode 86			/* 'upto' */
+#define ForDowntoNode 87			/* 'downto' */
 
 
-#define    NumberOfNodes 86 /* '<identifier>'*/
+#define    NumberOfNodes 87 /* '<identifier>'*/
 typedef int Mode;
 
 FILE *CodeFile;
@@ -138,7 +139,7 @@ char *node_name[] =
      "boolean","block","assign","output","if","while",
      "<null>","<=","+","-","read","<integer>","<identifier>","**","not","or","*",
  	"/","and","mod","=","<>",">=","<",">","true","false","eof","repeat","swap","loop",
-	"exit", "upto"};
+	"exit", "upto", "downto"};
 
 
 void CodeGenerate(int argc, char *argv[])
@@ -528,7 +529,8 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
          else
             CodeGen0 (NOP, Label2);
          return (Label3);     
-		 
+	
+	case ForDowntoNode :	 
     case ForUptoNode :
             Expression (Child(T,3), CurrLabel); //evaluate F
 			Expression (Child(T,2), NoLabel);	//evaluate I
@@ -539,13 +541,21 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			CodeGen0 (DUPOP, Label1);
 			IncrementFrameSize();
 			Reference (Child(Child(T,1),1), RightMode, NoLabel); //Load from i
-			CodeGen1 (BOPOP, BGE, NoLabel);
+			if (NodeName(T) == ForUptoNode) {
+				CodeGen1 (BOPOP, BGE, NoLabel);
+			} else {
+				CodeGen1 (BOPOP, BLE, NoLabel);
+			}
 			DecrementFrameSize();
 			CodeGen2 (CONDOP,Label2,Label3, NoLabel);
 			DecrementFrameSize();
             ProcessNode(Child(T,4),Label2); //Process S
 			Reference (Child(Child(T,1),1), RightMode, NoLabel); //Load from i
-			CodeGen1 (UOPOP, USUCC, NoLabel);
+			if (NodeName(T) == ForUptoNode) {
+				CodeGen1 (UOPOP, USUCC, NoLabel);
+			} else {
+				CodeGen1 (UOPOP, UPRED, NoLabel);
+			}
 			Reference (Child(Child(T,1),1), LeftMode, NoLabel); //store to i
             CodeGen1 (GOTOOP, Label1, NoLabel);
             CodeGen1 (POPOP, 1, Label3);

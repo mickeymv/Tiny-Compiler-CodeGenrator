@@ -55,8 +55,9 @@
 #define ExitNode 39
 #define ForUptoNode 40
 #define FOR_CTXT 41
+#define ForDowntoNode 42
 
-#define NumberOfNodes  41
+#define NumberOfNodes  42
 
 typedef TreeNode UserType;
 
@@ -73,7 +74,7 @@ char *node[] = { "program", "types", "type", "dclns",
 				 "not", "or", "*", "/", "and", "mod",
 				 "=", "<>", ">=", "<", ">", "true", "false",
 				"eof", "repeat", "swap", "<loop_ctxt>", "loop",
-				"exit", "upto", "<for_ctxt>"
+				"exit", "upto", "<for_ctxt>", "downto"
                 };
 
 
@@ -588,7 +589,8 @@ void ProcessNode (TreeNode T)
          }
          ProcessNode (Child(T,2));
          break;
-		 
+	
+	case ForDowntoNode :	 
      case ForUptoNode :
 	 	Temp = Lookup(FOR_CTXT,T);
 		Decorate(T,Temp);
