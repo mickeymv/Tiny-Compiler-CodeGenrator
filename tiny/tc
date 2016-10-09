@@ -21,4 +21,4 @@ $MYOBJS/Constrain -trace _CONS
 echo "Enter CodeGenerator ..."
 $MYOBJS/CodeGen -trace _CGEN
 echo "Starting Interpreter ..."
-$TWS/bin/interpret ${2}
+$TWS/bin/interpret ${2} ${3}
