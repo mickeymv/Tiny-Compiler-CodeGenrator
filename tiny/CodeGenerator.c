@@ -558,7 +558,7 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			}
 			Reference (Child(Child(T,1),1), LeftMode, NoLabel); //store to i
             CodeGen1 (GOTOOP, Label1, NoLabel);
-            CodeGen1 (POPOP, 1, Label3);
+            CodeGen1 (POPOP, MakeStringOf(1), Label3);
 			DecrementFrameSize();
 			CodeGen1 (LITOP, MakeStringOf(0), NoLabel); //After loop is done, clear the control variable to zero
 			IncrementFrameSize();
