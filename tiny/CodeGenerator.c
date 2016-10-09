@@ -108,11 +108,12 @@
 #define EOFNode 81				/* 'eof' */
 #define RepeatNode 82				/* 'repeat' */
 #define SwapNode 83			/* 'swap' */
-#define LoopNode 84			/* 'swap' */
-#define ExitNode 85			/* 'swap' */
+#define LoopNode 84			/* 'loop' */
+#define ExitNode 85			/* 'exit' */
+#define ForUptoNode 86			/* 'upto' */
 
 
-#define    NumberOfNodes 85 /* '<identifier>'*/
+#define    NumberOfNodes 86 /* '<identifier>'*/
 typedef int Mode;
 
 FILE *CodeFile;
@@ -137,7 +138,7 @@ char *node_name[] =
      "boolean","block","assign","output","if","while",
      "<null>","<=","+","-","read","<integer>","<identifier>","**","not","or","*",
  	"/","and","mod","=","<>",">=","<",">","true","false","eof","repeat","swap","loop",
-	"exit"};
+	"exit", "upto"};
 
 
 void CodeGenerate(int argc, char *argv[])
@@ -526,7 +527,33 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
             CodeGen0 (NOP, ProcessNode (Child(T,3),Label2));
          else
             CodeGen0 (NOP, Label2);
-         return (Label3);                
+         return (Label3);     
+		 
+    case ForUptoNode :
+            Expression (Child(T,3), CurrLabel); //evaluate F
+			Expression (Child(T,2), NoLabel);	//evaluate I
+            Reference (Child(Child(T,1),1), LeftMode, NoLabel); //store to i
+            Label1 = MakeLabel();
+			Label2 = MakeLabel();
+			Label3 = MakeLabel();
+			CodeGen0 (DUPOP, Label1);
+			IncrementFrameSize();
+			Reference (Child(Child(T,1),1), RightMode, NoLabel); //Load from i
+			CodeGen1 (BOPOP, BGE, NoLabel);
+			DecrementFrameSize();
+			CodeGen2 (CONDOP,Label2,Label3, NoLabel);
+			DecrementFrameSize();
+            ProcessNode(Child(T,4),Label2); //Process S
+			Reference (Child(Child(T,1),1), RightMode, NoLabel); //Load from i
+			CodeGen1 (UOPOP, USUCC, NoLabel);
+			Reference (Child(Child(T,1),1), LeftMode, NoLabel); //store to i
+            CodeGen1 (GOTOOP, Label1, NoLabel);
+            CodeGen1 (POPOP, 1, Label3);
+			DecrementFrameSize();
+			CodeGen1 (LITOP, MakeStringOf(0), NoLabel); //After loop is done, clear the control variable to zero
+			IncrementFrameSize();
+            Reference (Child(Child(T,1),1), LeftMode, NoLabel); //store to i
+            return (NoLabel);  		            
 
 
       case WhileNode :

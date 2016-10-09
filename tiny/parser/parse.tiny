@@ -16,6 +16,8 @@ Statement  -> Name ASSIGNMENT Expression          	=> "assign"
            -> Body
 		   -> REPEAT Statements UNTIL Expression			=> "repeat"
 	   	   ->                                        	=> "<null>"
+		   -> FOR Name ASSIGNMENT Expression TO Expression DO Statement => "upto"
+		   -> FOR Name ASSIGNMENT Expression DOWNTO Expression DO Statement => "downto"
 		   -> EXIT									=> "exit"
 		   -> LOOP Statements POOL					=> "loop";
 	   

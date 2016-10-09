@@ -53,8 +53,10 @@
 #define LOOP_CTXT 37
 #define LoopNode 38
 #define ExitNode 39
+#define ForUptoNode 40
+#define FOR_CTXT 41
 
-#define NumberOfNodes  39
+#define NumberOfNodes  41
 
 typedef TreeNode UserType;
 
@@ -71,7 +73,7 @@ char *node[] = { "program", "types", "type", "dclns",
 				 "not", "or", "*", "/", "and", "mod",
 				 "=", "<>", ">=", "<", ">", "true", "false",
 				"eof", "repeat", "swap", "<loop_ctxt>", "loop",
-				"exit"
+				"exit", "upto", "<for_ctxt>"
                 };
 
 
@@ -438,6 +440,7 @@ void ProcessNode (TreeNode T)
       case ProgramNode : 
          OpenScope();
 		 DTEnter(LOOP_CTXT,T,T);
+		 DTEnter(FOR_CTXT,T,T);
          Name1 = NodeName(Child(Child(T,1),1));
          Name2 = NodeName(Child(Child(T,NKids(T)),1));
 
@@ -525,6 +528,16 @@ void ProcessNode (TreeNode T)
             printf ("ASSIGNMENT TYPES DO NOT MATCH\n");
             printf ("\n");
          }
+		 
+ 	 	Temp = Lookup(FOR_CTXT,T); 		
+ 			// this variable must be different from all enclosing for loops' control variables.
+ 			while(NodeName(Temp) != ProgramNode) {
+ 				if (NodeName(Child(Child(Temp,1),1)) == NodeName(Child(Child(T,1),1))) {
+ 	                ErrorHeader(T);
+ 	                printf ("\nEnclosed variables must have different names than enclosing for loops' loop control variables!\n");
+ 				}
+ 				Temp = Decoration(Temp); //Get parent enclosing for loop
+ 			}
          break;
 		 
          case SwapNode :
@@ -575,6 +588,29 @@ void ProcessNode (TreeNode T)
          }
          ProcessNode (Child(T,2));
          break;
+		 
+     case ForUptoNode :
+	 	Temp = Lookup(FOR_CTXT,T);
+		Decorate(T,Temp);
+		OpenScope();
+		 DTEnter(FOR_CTXT,T,T);
+		 DTEnter(LOOP_CTXT,T,T);	//disallows exit.
+		 //	Process kids // assume <id> has correct type.
+            if (Expression (Child(T,1)) != Expression (Child(T,2)) || Expression (Child(T,1)) != Expression (Child(T,3)))
+            {
+               ErrorHeader(T);
+               printf ("\nInitial and final values must have same type as loop control variable!\n");
+            }
+			// this forUpto's control variable must be different from all enclosing for loops.
+			while(NodeName(Temp) != ProgramNode) {
+				if (NodeName(Child(Child(Temp,1),1)) == NodeName(Child(Child(T,1),1))) {
+	                ErrorHeader(T);
+	                printf ("\nEnclosing for loops must have different loop control variables!\n");
+				}
+				Temp = Decoration(Temp); //Get parent enclosing for loop
+			}
+			CloseScope();
+            break;	 
 		 
          case RepeatNode :
             if (Expression (Child(T,NKids(T))) != TypeBoolean)
