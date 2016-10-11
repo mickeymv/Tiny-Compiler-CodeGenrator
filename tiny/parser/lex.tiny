@@ -60,6 +60,10 @@ STR     \"[^\"]+\"
 "for" 		{ return rule(FOR); }
 "to" 		{ return rule(TO); }
 "downto" 	{ return rule(DOWNTO); }
+"case" 		{ return rule(CASE); }
+"of" 		{ return rule(OF); }
+".." 		{ return rule(RANGE); }
+"otherwise" { return rule(OTHERWISE); }
 {INT}		{ return node(INTEGER_NUM); }
 {IDENT}		{ return node(IDENTIFIER); }
 "{"		{ column += yyleng; BEGIN( COMM1 ); }

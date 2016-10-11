@@ -15,11 +15,22 @@ Statement  -> Name ASSIGNMENT Expression          	=> "assign"
            -> WHILE Expression DO Statement      	=> "while"
            -> Body
 		   -> REPEAT Statements UNTIL Expression			=> "repeat"
-	   	   ->                                        	=> "<null>"
 		   -> FOR Name ASSIGNMENT Expression TO Expression DO Statement => "upto"
 		   -> FOR Name ASSIGNMENT Expression DOWNTO Expression DO Statement => "downto"
 		   -> EXIT									=> "exit"
-		   -> LOOP Statements POOL					=> "loop";
+		   -> LOOP Statements POOL					=> "loop"
+		   
+		   -> CASE Expression OF Case_Clause list ';' Otherwise END	=> "case"
+		   ->                                        	=> "<null>";
+			
+Case_Clause	->	Case_Literal ':' Statement			=>	"case_clause"
+			->										=>	"<null>";
+
+Case_Literal ->	Integer RANGE Integer		=>	".."
+			->	Integer	;
+		   
+Otherwise	-> OTHERWISE Statement					=> "otherwise"
+			-> ';';
 	   
 Statements	->	Statement list ';' ;
 	   
@@ -58,6 +69,8 @@ Primary    -> READ                                 	=> "read"
 		   -> Truthvalue
            -> INTEGER_NUM				=> "<integer>"
            -> '(' Expression ')';
+		   
+Integer		-> 		INTEGER_NUM			=> "<integer>"   ;
 
 Name       -> IDENTIFIER				=> "<identifier>";
 
