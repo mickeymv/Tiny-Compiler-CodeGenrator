@@ -56,8 +56,11 @@
 #define ForUptoNode 40
 #define FOR_CTXT 41
 #define ForDowntoNode 42
+#define CaseNode 43
+#define CaseClauseNode 44
+#define OtherwiseNode 45
 
-#define NumberOfNodes  42
+#define NumberOfNodes  45
 
 typedef TreeNode UserType;
 
@@ -74,7 +77,8 @@ char *node[] = { "program", "types", "type", "dclns",
 				 "not", "or", "*", "/", "and", "mod",
 				 "=", "<>", ">=", "<", ">", "true", "false",
 				"eof", "repeat", "swap", "<loop_ctxt>", "loop",
-				"exit", "upto", "<for_ctxt>", "downto"
+				"exit", "upto", "<for_ctxt>", "downto", "case",
+				"case_clause", "otherwise"
                 };
 
 
@@ -478,6 +482,27 @@ void ProcessNode (TreeNode T)
 			Decorate(T,Temp);
 			Decorate(Temp,T);
             break;		
+			
+			
+		case CaseNode : 
+        Type1 = Expression (Child(T,1));
+
+        if (Type1 != TypeInteger)			//TODO: Make sure to constrain case literals to be same type as expression in future.
+        {
+           ErrorHeader(T);
+           printf ("Case's Expression should be of type integer!\n");
+           printf ("\n");
+        }
+		
+        for (Kid = 2; Kid < NKids(T); Kid++)
+           ProcessNode (Child(Child(T,Kid),2)); //Process statements of case_clauses
+		
+		if (NodeName(Child(T,NKids(T))) == CaseClauseNode) {
+			ProcessNode (Child(Child(T,NKids(T)),2));	//Process statement of last case_clause (when there is no otherwise clause defined)
+		} else if (NodeName(Child(T,NKids(T))) == OtherwiseNode) {
+			ProcessNode (Child(Child(T,NKids(T)),1));	//Process statement of otherwise clause defined
+		}
+	      break;			
 
 
       case TypesNode :  

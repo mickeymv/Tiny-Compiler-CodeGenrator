@@ -29,7 +29,7 @@ Case_Clause	->	Case_Literal ':' Statement			=>	"case_clause"
 Case_Literal ->	Integer RANGE Integer		=>	".."
 			->	Integer	;
 		   
-Otherwise	-> OTHERWISE Statement					=> "otherwise"
+Otherwise	-> ';' OTHERWISE Statement					=> "otherwise"
 			-> ';';
 	   
 Statements	->	Statement list ';' ;
