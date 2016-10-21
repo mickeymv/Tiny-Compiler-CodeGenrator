@@ -539,13 +539,13 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
     case ForUptoNode :
             Expression (Child(T,3), CurrLabel); //evaluate F
 			Expression (Child(T,2), NoLabel);	//evaluate I
-            Reference (Child(T,1), LeftMode, NoLabel); //store to i
+            Reference (Child(Child(T,1),1), LeftMode, NoLabel); //store to i
             Label1 = MakeLabel();
 			Label2 = MakeLabel();
 			Label3 = MakeLabel();
 			CodeGen0 (DUPOP, Label1);
 			IncrementFrameSize();
-			Reference (Child(T,1), RightMode, NoLabel); //Load from i
+			Reference (Child(Child(T,1),1), RightMode, NoLabel); //Load from i
 			if (NodeName(T) == ForUptoNode) {
 				CodeGen1 (BOPOP, BGE, NoLabel);
 			} else {
@@ -555,19 +555,19 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			CodeGen2 (CONDOP,Label2,Label3, NoLabel);
 			DecrementFrameSize();
             CascadeLabel = ProcessNode(Child(T,4),Label2); //Process S
-			Reference (Child(T,1), RightMode, CascadeLabel); //Load from i
+			Reference (Child(Child(T,1),1), RightMode, CascadeLabel); //Load from i
 			if (NodeName(T) == ForUptoNode) {
 				CodeGen1 (UOPOP, USUCC, NoLabel);
 			} else {
 				CodeGen1 (UOPOP, UPRED, NoLabel);
 			}
-			Reference (Child(T,1), LeftMode, NoLabel); //store to i
+			Reference (Child(Child(T,1),1), LeftMode, NoLabel); //store to i
             CodeGen1 (GOTOOP, Label1, NoLabel);
             CodeGen1 (POPOP, MakeStringOf(1), Label3);
 			DecrementFrameSize();
 			CodeGen1 (LITOP, MakeStringOf(0), NoLabel); //After loop is done, clear the control variable to zero
 			IncrementFrameSize();
-            Reference (Child(T,1), LeftMode, NoLabel); //store to i
+            Reference (Child(Child(T,1),1), LeftMode, NoLabel); //store to i
             return (NoLabel);  		            
 
 	
