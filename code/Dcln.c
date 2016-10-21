@@ -110,10 +110,10 @@ void InitializeDeclarationTable(void)
       exit(1);
    }
 
-   DclnTable->CurrentDcln = AllocateStack(50);
-   DclnTable->Name = AllocateStack(50);
-   DclnTable->Prior = AllocateStack(50);
-   DclnTable->Dcln = AllocateStack(50);
+   DclnTable->CurrentDcln = AllocateStack(500);
+   DclnTable->Name = AllocateStack(500);
+   DclnTable->Prior = AllocateStack(500);
+   DclnTable->Dcln = AllocateStack(500);
 
    CurrentScope = NullScope;
    LastDeclaration = NullDeclaration;
@@ -199,3 +199,40 @@ boolean IsLocal(String S)
   return (Element(DclnTable->CurrentDcln, S) > CurrentScope);
 }
   
+void PrintDclnTable(FILE *file)
+{
+   int i,k,largest;
+   fprintf(file,"DCLN TABLE:\n");
+   fprintf(file,"LastDeclaraton: %d\n", LastDeclaration);
+   fprintf(file,"CurrentScope:   %d\n", CurrentScope);
+   fprintf(file,"\tCurDcl\tName\tPrior\tDcln\n");
+   fprintf(file,"------------------------------------\n");
+   largest=0;
+   for (i=1; i <= LastDeclaration; i++)
+   {
+      k= Element(DclnTable->Name,i);
+      if (k > largest) largest = k;
+   }
+   k=largest>LastDeclaration?largest:LastDeclaration;
+   
+   for (i=1; i <= k; i++)
+   {
+      fprintf(file,"%2d:\t",i);
+      if (i<=largest)
+      if (Element(DclnTable->CurrentDcln,i)==NullDeclaration)
+         fprintf(file,"\t");
+      else 
+         fprintf(file,"%2d\t",Element(DclnTable->CurrentDcln,i));
+      else 
+         fprintf(file,"\t");
+      if (i<=LastDeclaration)
+      {
+         fprintf(file,"%2d\t", Element(DclnTable->Name,i));
+         fprintf(file,"%2d\t", Element(DclnTable->Prior,i));
+         fprintf(file,"%2d\n", Element(DclnTable->Dcln,i));
+      }
+      else fprintf(file,"\n");
+   }
+   fprintf(file,"END DCLN TABLE\n------------------------------------\n");
+
+}
