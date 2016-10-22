@@ -487,7 +487,7 @@ void ProcessNode (TreeNode T)
 		case CaseNode : 
         Type1 = Expression (Child(T,1));
 
-        if (Type1 != TypeInteger)			//TODO: Make sure to constrain case literals to be same type as expression in future.
+        if (Type1 != TypeInteger)			/*  TODO: Make sure to constrain case literals to be same type as expression in future. */
         {
            ErrorHeader(T);
            printf ("Case's Expression should be of type integer!\n");
@@ -495,12 +495,12 @@ void ProcessNode (TreeNode T)
         }
 		
         for (Kid = 2; Kid < NKids(T); Kid++)
-           ProcessNode (Child(Child(T,Kid),2)); //Process statements of case_clauses
+           ProcessNode (Child(Child(T,Kid),2)); /*  Process statements of case_clauses */
 		
 		if (NodeName(Child(T,NKids(T))) == CaseClauseNode) {
-			ProcessNode (Child(Child(T,NKids(T)),2));	//Process statement of last case_clause (when there is no otherwise clause defined)
+			ProcessNode (Child(Child(T,NKids(T)),2));	/*  Process statement of last case_clause (when there is no otherwise clause defined) */
 		} else if (NodeName(Child(T,NKids(T))) == OtherwiseNode) {
-			ProcessNode (Child(Child(T,NKids(T)),1));	//Process statement of otherwise clause defined
+			ProcessNode (Child(Child(T,NKids(T)),1));	/*  Process statement of otherwise clause defined */
 		}
 	      break;			
 
@@ -557,13 +557,13 @@ void ProcessNode (TreeNode T)
          }
 		 
  	 	Temp = Lookup(FOR_CTXT,T); 		
- 			// this variable must be different from all enclosing for loops' control variables.
+ 			/*   this variable must be different from all enclosing for loops' control variables. */
  			while(NodeName(Temp) != ProgramNode) {
  				if (NodeName(Child(Child(Temp,1),1)) == NodeName(Child(Child(T,1),1))) {
  	                ErrorHeader(T);
  	                printf ("Assigned variable must have a different name than enclosing for loops' loop control variables!\n");
  				}
- 				Temp = Decoration(Temp); //Get parent enclosing for loop
+ 				Temp = Decoration(Temp); /*  Get parent enclosing for loop */
  			}
          break;
 		 
@@ -578,13 +578,13 @@ void ProcessNode (TreeNode T)
                printf ("\n");
             }
 	 	 	Temp = Lookup(FOR_CTXT,T); 		
-	 			// the two variable must be different from all enclosing for loops' control variables.
+	 			/*   the two variable must be different from all enclosing for loops' control variables. */
 	 			while(NodeName(Temp) != ProgramNode) {
 	 				if (NodeName(Child(Child(Temp,1),1)) == NodeName(Child(Child(T,1),1)) || NodeName(Child(Child(Temp,1),1)) == NodeName(Child(Child(T,2),1))) {
 	 	                ErrorHeader(T);
 	 	                printf ("Swap variables must have different names than enclosing for loops' loop control variables!\n");
 	 				}
-	 				Temp = Decoration(Temp); //Get parent enclosing for loop
+	 				Temp = Decoration(Temp); /*  Get parent enclosing for loop */
 	 			}
             break;	 
 
@@ -631,8 +631,8 @@ void ProcessNode (TreeNode T)
 		Decorate(T,Temp);
 		OpenScope();
 		 DTEnter(FOR_CTXT,T,T);
-		 DTEnter(LOOP_CTXT,T,T);	//disallows exit.
-		 //	Process kids // assume <id> has correct type.
+		 DTEnter(LOOP_CTXT,T,T);	/*  disallows exit. */
+		 /*  	Process kids   assume <id> has correct type. */
             if (Expression (Child(T,1)) != Expression (Child(T,2)) || Expression (Child(T,1)) != Expression (Child(T,3)))
             {
                ErrorHeader(T);
@@ -641,7 +641,7 @@ void ProcessNode (TreeNode T)
 			
 			ProcessNode(Child(T,4));
 						
-			// this forUpto's control variable must be different from all enclosing for loops.
+			/*   this forUpto's control variable must be different from all enclosing for loops. */
 			
 			while(NodeName(Temp) != ProgramNode) {
 				
@@ -649,7 +649,7 @@ void ProcessNode (TreeNode T)
 	                ErrorHeader(T);
 	                printf ("Enclosing for loops must have different loop control variables!\n");
 				}
-				Temp = Decoration(Temp); //Get parent's enclosing for loop
+				Temp = Decoration(Temp); /*  Get parent's enclosing for loop */
 			}
 			CloseScope();
             break;	 

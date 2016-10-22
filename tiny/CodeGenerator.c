@@ -537,15 +537,15 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 	
 	case ForDowntoNode :	 
     case ForUptoNode :
-            Expression (Child(T,3), CurrLabel); //evaluate F
-			Expression (Child(T,2), NoLabel);	//evaluate I
-            Reference (Child(Child(T,1),1), LeftMode, NoLabel); //store to i
+            Expression (Child(T,3), CurrLabel); /*  evaluate F */
+			Expression (Child(T,2), NoLabel);	/*  evaluate I */
+            Reference (Child(Child(T,1),1), LeftMode, NoLabel); /*  store to i */
             Label1 = MakeLabel();
 			Label2 = MakeLabel();
 			Label3 = MakeLabel();
 			CodeGen0 (DUPOP, Label1);
 			IncrementFrameSize();
-			Reference (Child(Child(T,1),1), RightMode, NoLabel); //Load from i
+			Reference (Child(Child(T,1),1), RightMode, NoLabel); /*  Load from i */
 			if (NodeName(T) == ForUptoNode) {
 				CodeGen1 (BOPOP, BGE, NoLabel);
 			} else {
@@ -554,46 +554,46 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			DecrementFrameSize();
 			CodeGen2 (CONDOP,Label2,Label3, NoLabel);
 			DecrementFrameSize();
-            CascadeLabel = ProcessNode(Child(T,4),Label2); //Process S
-			Reference (Child(Child(T,1),1), RightMode, CascadeLabel); //Load from i
+            CascadeLabel = ProcessNode(Child(T,4),Label2); /*  Process S */
+			Reference (Child(Child(T,1),1), RightMode, CascadeLabel); /*  Load from i */
 			if (NodeName(T) == ForUptoNode) {
 				CodeGen1 (UOPOP, USUCC, NoLabel);
 			} else {
 				CodeGen1 (UOPOP, UPRED, NoLabel);
 			}
-			Reference (Child(Child(T,1),1), LeftMode, NoLabel); //store to i
+			Reference (Child(Child(T,1),1), LeftMode, NoLabel); /*  store to i */
             CodeGen1 (GOTOOP, Label1, NoLabel);
             CodeGen1 (POPOP, MakeStringOf(1), Label3);
 			DecrementFrameSize();
-			CodeGen1 (LITOP, MakeStringOf(0), NoLabel); //After loop is done, clear the control variable to zero
+			CodeGen1 (LITOP, MakeStringOf(0), NoLabel); /*  After loop is done, clear the control variable to zero */
 			IncrementFrameSize();
-            Reference (Child(Child(T,1),1), LeftMode, NoLabel); //store to i
+            Reference (Child(Child(T,1),1), LeftMode, NoLabel); /*  store to i */
             return (NoLabel);  		            
 
 	
 	case CaseNode :
-		Expression (Child(T,1), CurrLabel); //evaluate E
+		Expression (Child(T,1), CurrLabel); /*  evaluate E */
 		ExitLabel = MakeLabel();
-		NextLabel = NoLabel;	//for L1 within the first CL
+		NextLabel = NoLabel;	/*  for L1 within the first CL */
         for (Kid = 2; Kid < NKids(T); Kid++) {
-			//In the if-else below, calculate the case_literal (CLi)
-           if (NodeName(Child(Child(T,Kid),1)) == IntegerNode) { //There is only one case literal, example "1:{S}"
+			/*  In the if-else below, calculate the case_literal (CLi) */
+           if (NodeName(Child(Child(T,Kid),1)) == IntegerNode) { /*  There is only one case literal, example "1:{S}" */
    			CodeGen0 (DUPOP, NextLabel);
    			IncrementFrameSize();
-			CodeGen1 (LITOP, NodeName (Child(Child(Child(T,Kid),1),1)), NoLabel); //Put the case literal on top of the stack
+			CodeGen1 (LITOP, NodeName (Child(Child(Child(T,Kid),1),1)), NoLabel); /*  Put the case literal on top of the stack */
 			IncrementFrameSize();
 			CodeGen1 (BOPOP, BEQ, NoLabel);
-           } else if (NodeName(Child(Child(T,Kid),1)) == RangeNode) {	//There is range case literal, example "1..5:{S}"
+           } else if (NodeName(Child(Child(T,Kid),1)) == RangeNode) {	/*  There is range case literal, example "1..5:{S}" */
   			CodeGen0 (DUPOP, NextLabel);
   			IncrementFrameSize();
    			CodeGen0 (DUPOP, NoLabel);
    			IncrementFrameSize();
-			CodeGen1 (LITOP, NodeName (Child(Child(Child(Child(T,Kid),1),1),1)), NoLabel); //Put the lower case range literal 'l' on top of the stack
+			CodeGen1 (LITOP, NodeName (Child(Child(Child(Child(T,Kid),1),1),1)), NoLabel); /*  Put the lower case range literal 'l' on top of the stack */
 			IncrementFrameSize();
 			CodeGen1 (BOPOP, BGE, NoLabel);
 			DecrementFrameSize();
 			CodeGen0 (SWAPOP, NoLabel);					
-			CodeGen1 (LITOP, NodeName (Child(Child(Child(Child(T,Kid),1),2),1)), NoLabel); //Put the upper case range literal 'u' on top of the stack
+			CodeGen1 (LITOP, NodeName (Child(Child(Child(Child(T,Kid),1),2),1)), NoLabel); /*  Put the upper case range literal 'u' on top of the stack */
 			IncrementFrameSize();
 			CodeGen1 (BOPOP, BLE, NoLabel);
 			DecrementFrameSize();
@@ -606,29 +606,29 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			DecrementFrameSize();
             CodeGen1 (POPOP, MakeStringOf(1), ThisLabel);
 			DecrementFrameSize();
-			CascadeLabel = ProcessNode(Child(Child(T,Kid),2),NoLabel); //Process statement within the case_clause
+			CascadeLabel = ProcessNode(Child(Child(T,Kid),2),NoLabel); /*  Process statement within the case_clause */
 			CodeGen1 (GOTOOP, ExitLabel, CascadeLabel);
 	   }
 	   
-	   if(NodeName(Child(T,NKids(T))) == CaseClauseNode) { //No 'otherwise'
-			//In the if-else below, calculate the case_literal (CLi)
-           if (NodeName(Child(Child(T,NKids(T)),1)) == IntegerNode) { //There is only one case literal, example "1:{S}"
+	   if(NodeName(Child(T,NKids(T))) == CaseClauseNode) { /*  No 'otherwise' */
+			/*  In the if-else below, calculate the case_literal (CLi) */
+           if (NodeName(Child(Child(T,NKids(T)),1)) == IntegerNode) { /*  There is only one case literal, example "1:{S}" */
    			CodeGen0 (DUPOP, NextLabel);
    			IncrementFrameSize();
-			CodeGen1 (LITOP, NodeName (Child(Child(Child(T,NKids(T)),1),1)), NoLabel); //Put the case literal on top of the stack
+			CodeGen1 (LITOP, NodeName (Child(Child(Child(T,NKids(T)),1),1)), NoLabel); /*  Put the case literal on top of the stack */
 			IncrementFrameSize();
 			CodeGen1 (BOPOP, BEQ, NoLabel);
-           } else if (NodeName(Child(Child(T,NKids(T)),1)) == RangeNode) {	//There is range case literal, example "1..5:{S}"
+           } else if (NodeName(Child(Child(T,NKids(T)),1)) == RangeNode) {	/*  There is range case literal, example "1..5:{S}" */
   			CodeGen0 (DUPOP, NextLabel);
   			IncrementFrameSize();
    			CodeGen0 (DUPOP, NoLabel);
    			IncrementFrameSize();
-			CodeGen1 (LITOP, NodeName (Child(Child(Child(Child(T,NKids(T)),1),1),1)), NoLabel); //Put the lower case range literal 'l' on top of the stack
+			CodeGen1 (LITOP, NodeName (Child(Child(Child(Child(T,NKids(T)),1),1),1)), NoLabel); /*  Put the lower case range literal 'l' on top of the stack */
 			IncrementFrameSize();
 			CodeGen1 (BOPOP, BGE, NoLabel);
 			DecrementFrameSize();
 			CodeGen0 (SWAPOP, NoLabel);					
-			CodeGen1 (LITOP, NodeName (Child(Child(Child(Child(T,NKids(T)),1),2),1)), NoLabel); //Put the upper case range literal 'u' on top of the stack
+			CodeGen1 (LITOP, NodeName (Child(Child(Child(Child(T,NKids(T)),1),2),1)), NoLabel); /*  Put the upper case range literal 'u' on top of the stack */
 			IncrementFrameSize();
 			CodeGen1 (BOPOP, BLE, NoLabel);
 			DecrementFrameSize();
@@ -641,13 +641,13 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			DecrementFrameSize();
             CodeGen1 (POPOP, MakeStringOf(1), ThisLabel);
 			DecrementFrameSize();
-			CascadeLabel = ProcessNode(Child(Child(T,NKids(T)),2),NoLabel); //Process statement within the case_clause
+			CascadeLabel = ProcessNode(Child(Child(T,NKids(T)),2),NoLabel); /*  Process statement within the case_clause */
 			CodeGen1 (GOTOOP, ExitLabel, CascadeLabel);
 			
 			CodeGen1 (POPOP, MakeStringOf(1), NextLabel);
 	   } else if (NodeName(Child(T,NKids(T))) == OtherwiseNode) {
 	   		CodeGen1 (POPOP, MakeStringOf(1), NextLabel);
-			ProcessNode(Child(Child(T,NKids(T)),1),NoLabel); //Process statement within the case_clause
+			ProcessNode(Child(Child(T,NKids(T)),1),NoLabel); /*  Process statement within the case_clause */
 	   }
 	   
 		return (ExitLabel);
@@ -672,17 +672,17 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
             else 
                Label1 = CurrLabel;
             Label2 = MakeLabel();
-			Decorate(T,Label2); //The exit label for this loop node, which is used by the enclosed exit.
+			Decorate(T,Label2); /*  The exit label for this loop node, which is used by the enclosed exit. */
 				CascadeLabel = Label1;
 	            for (Kid = 1; Kid <= NKids(T); Kid++)
 	            {
 	               CascadeLabel = ProcessNode (Child(T,Kid),CascadeLabel);
 	            }
-            CodeGen1 (GOTOOP, Label1, CascadeLabel); //After processing the loop's enclosing children statements, go back to start of the loop and repeat all the enclosing statements.
-            return (Label2); //Label2 is the exit label for the loop construct
+            CodeGen1 (GOTOOP, Label1, CascadeLabel); /*  After processing the loop's enclosing children statements, go back to start of the loop and repeat all the */ enclosing statements.
+            return (Label2); /*  Label2 is the exit label for the loop construct */
 			
 	 case ExitNode :
-				Label1 = Decoration(Decoration(T)); //Get the decoration of the exit (which is its enclosing loop stmt), then get its decoration (which is the exit label for that loop stmt)			
+				Label1 = Decoration(Decoration(T)); /*  Get the decoration of the exit (which is its enclosing loop stmt), then get its decoration (which is the exit label for that loop stmt)			 */
 				CodeGen1 (GOTOOP, Label1, CurrLabel);
 			return(NoLabel);
 			
@@ -700,7 +700,7 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
    	            }
    			}
 
-               Expression (Child(T,NKids(T)), CascadeLabel); //The nth child would be the until expression
+               Expression (Child(T,NKids(T)), CascadeLabel); /*  The nth child would be the until expression */
                CodeGen2 (CONDOP, Label2, Label1, NoLabel);
                DecrementFrameSize();
                return (Label2);				 
