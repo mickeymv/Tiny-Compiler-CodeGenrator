@@ -28,6 +28,7 @@ STR     \"[^\"]+\"
 "var" 		{ return rule(VAR); }
 "integer" 	{ return rule(INTEGER); }
 "boolean" 	{ return rule(BOOLEAN); }
+"char" 		{ return rule(CHAR); }
 "begin" 	{ return rule(BEGINX); }
 "end" 		{ return rule(END); }
 ":=" 		{ return rule(ASSIGNMENT); }

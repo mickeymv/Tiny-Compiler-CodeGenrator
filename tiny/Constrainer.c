@@ -60,8 +60,10 @@
 #define CaseClauseNode 44
 #define OtherwiseNode 45
 #define LitNode 46
+#define CharTNode 47
+#define CharNode 48
 
-#define NumberOfNodes  46
+#define NumberOfNodes  48
 
 typedef TreeNode UserType;
 
@@ -79,7 +81,8 @@ char *node[] = { "program", "types", "type", "dclns",
 				 "=", "<>", ">=", "<", ">", "true", "false",
 				"eof", "repeat", "swap", "<loop_ctxt>", "loop",
 				"exit", "upto", "<for_ctxt>", "downto", "case",
-				"case_clause", "otherwise", "lit"
+				"case_clause", "otherwise", "lit", "char",
+				"<char>"
                 };
 
 
@@ -152,14 +155,19 @@ void AddIntrinsics (void)
 
    TempTree = Child (RootOfTree(1), 2); /*Get the types node.*/
    AddTree (TypeNode, TempTree, 1);		/*Add typeNode (boolean) to types*/
-   /*
+   
    TempTree = Child (RootOfTree(1), 2); /*Get the types node.*/
-  /* AddTree (TypeNode, TempTree, 1);		/*Add typeNode (char) to types*/
+   AddTree (TypeNode, TempTree, 1);		/*Add typeNode (char) to types*/
    
    TempTree = Child (Child (RootOfTree(1), 2), 1); /*Get first type node.*/
    AddTree (IdentifierNode, TempTree, 1);	/*Add identifier under first type node.*/
    TempTree = Child (Child (Child (RootOfTree(1), 2), 1),1);
    AddTree (IntegerTNode, TempTree, 1);	/*Add integer under first type's id node.*/
+   
+   TempTree = Child (Child (RootOfTree(1), 2), 3); /*Get third type node.*/
+   AddTree (IdentifierNode, TempTree, 1);	/*Add identifier under third type node.*/
+   TempTree = Child (Child (Child (RootOfTree(1), 2), 3),1);
+   AddTree (CharTNode, TempTree, 1);	/*Add char under third type's id node.*/
  
    TempTree = Child (Child (RootOfTree(1), 2), 2);	/*Get second type node.*/
    AddTree (IdentifierNode, TempTree, 1);	/*Add identifier under second type node.*/
@@ -528,13 +536,32 @@ void ProcessNode (TreeNode T)
       case TypesNode :  
          for (Kid = 1; Kid <= NKids(T); Kid++)
             ProcessNode (Child(T,Kid));
-         TypeBoolean = Child(T,1);
-         TypeInteger = Child(T,2);
+         TypeInteger = Child(T,1);
+		 TypeBoolean = Child(T,2);
          break;
 
 
       case TypeNode :
-         DTEnter (NodeName(Child(T,1)),T,T);
+         DTEnter (NodeName(Child(Child(T,1), 1)), Child(T, 1), T); 
+		 Decorate (Child(Child(T, 1), 1), T); /*decorate node under <id> node with integer/boolean/char/Color with 'type'*/
+		 /*The below code is to define how to decorate the <id> nodes and its siblings (if applicable) with type */
+		 if(NKids(T) == 1) /*For integer and char*/
+			 Decorate (Child(T, 1), T); /*TODO: Do the same for synonyms*/
+		 else /*Two children under type node*/
+		 	 if(NKids(T) > 1 && NodeName(Child(T, 2)) == LitNode) { /*For enumerations, second child is litnode*/
+			 Decorate (Child(T,1), T);
+		     for (Kid = 1; Kid <= NKids(Child(T,2)); Kid++){
+            	 Decorate (Child(Child(T,2), Kid), T); /*Decorate <id> of enum with 'type'*/
+				 DTEnter (NodeName(Child(Child(Child(T,2), Kid), 1)),Child(Child(T,2),Kid),Child(T,2));
+				 Decorate (Child(Child(Child(T,2), Kid), 1), Child(T, 2));
+			 }
+		 	}
+ 
+		 
+			 /* For synonyms, /*Second child is identifier */
+		 	/*else if(NKids(T) > 1 && NodeName(Child(T,2)) == IdentifierNode))
+		 	 ExpressionNode(Child(T,2));
+			 */
          break;
 
 
