@@ -50,8 +50,6 @@ STR     \"[^\"]+\"
 "mod" 		{ return rule(MOD); }
 "**" 		{ return rule(EXP); }
 "eof" 		{ return rule(EOFFN); }
-"true" 		{ return rule(TRUE); }
-"false" 	{ return rule(FALSE); }
 "repeat" 	{ return rule(REPEAT); }
 "until" 	{ return rule(UNTIL); }
 "loop" 		{ return rule(LOOP); }

@@ -59,8 +59,9 @@
 #define CaseNode 43
 #define CaseClauseNode 44
 #define OtherwiseNode 45
+#define LitNode 46
 
-#define NumberOfNodes  45
+#define NumberOfNodes  46
 
 typedef TreeNode UserType;
 
@@ -78,7 +79,7 @@ char *node[] = { "program", "types", "type", "dclns",
 				 "=", "<>", ">=", "<", ">", "true", "false",
 				"eof", "repeat", "swap", "<loop_ctxt>", "loop",
 				"exit", "upto", "<for_ctxt>", "downto", "case",
-				"case_clause", "otherwise"
+				"case_clause", "otherwise", "lit"
                 };
 
 
@@ -144,19 +145,37 @@ void AddIntrinsics (void)
 {
    TreeNode TempTree;
 
-   AddTree (TypesNode, RootOfTree(1), 2);
+   AddTree (TypesNode, RootOfTree(1), 2); /*Add types node under root (program) */
 
-   TempTree = Child (RootOfTree(1), 2);
-   AddTree (TypeNode, TempTree, 1);
+   TempTree = Child (RootOfTree(1), 2); /*Get the types node.*/
+   AddTree (TypeNode, TempTree, 1);   /*Add typeNode (integer) to types*/
 
-   TempTree = Child (RootOfTree(1), 2);
-   AddTree (TypeNode, TempTree, 1);
-
-   TempTree = Child (Child (RootOfTree(1), 2), 1);
-   AddTree (BooleanTNode, TempTree, 1);
+   TempTree = Child (RootOfTree(1), 2); /*Get the types node.*/
+   AddTree (TypeNode, TempTree, 1);		/*Add typeNode (boolean) to types*/
+   /*
+   TempTree = Child (RootOfTree(1), 2); /*Get the types node.*/
+  /* AddTree (TypeNode, TempTree, 1);		/*Add typeNode (char) to types*/
+   
+   TempTree = Child (Child (RootOfTree(1), 2), 1); /*Get first type node.*/
+   AddTree (IdentifierNode, TempTree, 1);	/*Add identifier under first type node.*/
+   TempTree = Child (Child (Child (RootOfTree(1), 2), 1),1);
+   AddTree (IntegerTNode, TempTree, 1);	/*Add integer under first type's id node.*/
  
-   TempTree = Child (Child (RootOfTree(1), 2), 2);
-   AddTree (IntegerTNode, TempTree, 1);
+   TempTree = Child (Child (RootOfTree(1), 2), 2);	/*Get second type node.*/
+   AddTree (IdentifierNode, TempTree, 1);	/*Add identifier under second type node.*/
+   TempTree = Child (Child (RootOfTree(1), 2), 2);	/*Get second type node.*/
+   AddTree (LitNode, TempTree, 2);	/*Add lit under second type node.*/
+   
+   TempTree = Child (Child (Child (RootOfTree(1), 2), 2),1);
+   AddTree (BooleanTNode, TempTree, 1); /*Add boolean under second type's id node.*/
+   TempTree = Child (Child (Child (RootOfTree(1), 2), 2),2); /*Get lit node under second type (boolean's sibling)*/
+   AddTree (IdentifierNode, TempTree, 1);	/*Add identifier under lit node.*/
+   TempTree = Child (Child (Child (RootOfTree(1), 2), 2),2); /*Get lit node under second type (boolean's sibling)*/
+   AddTree (IdentifierNode, TempTree, 2);	/*Add identifier under lit node.*/
+   TempTree = Child (Child (Child (Child (RootOfTree(1), 2), 2), 2), 1);
+   AddTree (FalseNode, TempTree, 1);
+   TempTree = Child (Child (Child (Child (RootOfTree(1), 2), 2), 2), 2);
+   AddTree (TrueNode, TempTree, 1);
 }
 
 
@@ -458,6 +477,7 @@ void ProcessNode (TreeNode T)
 
          for (Kid = 2; Kid <= NKids(T)-1; Kid++)
             ProcessNode (Child(T,Kid));
+		 PrintTree(stdout,RootOfTree(1));
          CloseScope();
          break;
 		

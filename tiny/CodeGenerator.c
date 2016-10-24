@@ -678,7 +678,7 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 	            {
 	               CascadeLabel = ProcessNode (Child(T,Kid),CascadeLabel);
 	            }
-            CodeGen1 (GOTOOP, Label1, CascadeLabel); /*  After processing the loop's enclosing children statements, go back to start of the loop and repeat all the */ enclosing statements.
+            CodeGen1 (GOTOOP, Label1, CascadeLabel); /*  After processing the loop's enclosing children statements, go back to start of the loop and repeat all the  enclosing statements.*/
             return (Label2); /*  Label2 is the exit label for the loop construct */
 			
 	 case ExitNode :

@@ -66,13 +66,9 @@ Expo -> Primary EXP Expo 				=> "**"
 Primary    -> READ                                 	=> "read"
 			-> EOFFN						=> "eof"
            -> Name
-		   -> Truthvalue
            -> INTEGER_NUM				=> "<integer>"
            -> '(' Expression ')';
 		   
 Integer		-> 		INTEGER_NUM			=> "<integer>"   ;
 
 Name       -> IDENTIFIER				=> "<identifier>";
-
-Truthvalue -> TRUE						=> "true"
-			->	FALSE					=> "false";
