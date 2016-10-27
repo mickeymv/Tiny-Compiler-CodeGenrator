@@ -580,11 +580,17 @@ void ProcessNode (TreeNode T)
 			idFirstChildNode = Child(T, 1);
 			idSecondChildNode = Child(T, 2);
 			
+			
 			idNameFirstGrandChildNode = Child(idFirstChildNode, 1);
 			idNodeNameFirstGrandChildNode = NodeName(idNameFirstGrandChildNode);
-			
-
+			/*
+			printf ("\nGoing to do DTEnter for name: %d pointing to %d\n", idNodeNameFirstGrandChildNode, NodeName(idFirstChildNode));
+			*/
 			DTEnter (idNodeNameFirstGrandChildNode, idFirstChildNode, T); /*Entry in DT for the name pointing to <id> declaration*/
+			/*
+			printf("\nThe DeclnTable is now;\n");
+			            PrintDclnTable(stdout);
+			*/			
 			Decorate(idNameFirstGrandChildNode, constNode); /*Setup mode*/ /*Pointing to 'const' node from the const's variable name (lValue) */
 			
 			/*Below code is to infer type and setup the decorations for the <id> node's type.*/
@@ -604,7 +610,7 @@ void ProcessNode (TreeNode T)
 				Decorate(idFirstChildNode,Type); /*Setup type*//*Decorate <id> in declaration with the type, here a pointer to the typeNode above the inferred id's typeDeclaration.*/
 			    /*Check mode for when the second child of const is <id>. Only legal values here are const and lit.*/
 				Mode = NodeName(Decoration(Child(Decl,1)));
-	            if (Mode != "const" || Mode != "lit")
+	            if (Mode != ConstNode && Mode != LitNode)
 	            {
 	               ErrorHeader(T);
 	               printf ("Cannot assign variables or types to constants!\n");
