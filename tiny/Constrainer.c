@@ -62,8 +62,10 @@
 #define LitNode 46
 #define CharTNode 47
 #define CharNode 48
+#define ConstsNode 49
+#define ConstNode 50
 
-#define NumberOfNodes  48
+#define NumberOfNodes  50
 
 typedef TreeNode UserType;
 
@@ -82,11 +84,11 @@ char *node[] = { "program", "types", "type", "dclns",
 				"eof", "repeat", "swap", "<loop_ctxt>", "loop",
 				"exit", "upto", "<for_ctxt>", "downto", "case",
 				"case_clause", "otherwise", "lit", "char",
-				"<char>"
+				"<char>", "consts", "const"
                 };
 
 
-UserType TypeInteger, TypeBoolean;
+UserType TypeInteger, TypeBoolean, TypeChar;
 boolean TraceSpecified;
 FILE *TraceFile;
 char *TraceFileName;
@@ -456,8 +458,8 @@ UserType Expression (TreeNode T)
 void ProcessNode (TreeNode T) 
 {
    int Kid, N;
-   String Name1, Name2;
-   TreeNode Type1, Type2, Type3, Temp;
+   String Name1, Name2, Mode;
+   TreeNode Decl, Type, Type1, Type2, Type3, Temp, constNode, idFirstChildNode, idSecondChildNode, idNameFirstGrandChildNode, idNodeNameFirstGrandChildNode, idNameSecondGrandChildNode, idNodeNameSecondGrandChild, intNode, charNode;
 
    if (TraceSpecified)
    {
@@ -538,11 +540,12 @@ void ProcessNode (TreeNode T)
             ProcessNode (Child(T,Kid));
          TypeInteger = Child(T,1);
 		 TypeBoolean = Child(T,2);
+		 TypeChar = Child(T,3);
          break;
 
 
-      case TypeNode :
-         DTEnter (NodeName(Child(Child(T,1), 1)), Child(T, 1), T); 
+      case TypeNode :         
+		 DTEnter (NodeName(Child(Child(T,1), 1)), Child(T, 1), T); 
 		 Decorate (Child(Child(T, 1), 1), T); /*decorate node under <id> node with integer/boolean/char/Color with 'type'*/
 		 /*The below code is to define how to decorate the <id> nodes and its siblings (if applicable) with type */
 		 if(NKids(T) == 1) /*For integer and char*/
@@ -563,6 +566,54 @@ void ProcessNode (TreeNode T)
 		 	 ExpressionNode(Child(T,2));
 			 */
          break;
+		 
+       case ConstsNode :  
+            for (Kid = 1; Kid <= NKids(T); Kid++)
+               ProcessNode (Child(T,Kid));
+            break;	
+			
+			
+			
+	  case ConstNode :			
+			constNode = T;
+			
+			idFirstChildNode = Child(T, 1);
+			idSecondChildNode = Child(T, 2);
+			
+			idNameFirstGrandChildNode = Child(idFirstChildNode, 1);
+			idNodeNameFirstGrandChildNode = NodeName(idNameFirstGrandChildNode);
+			
+
+			DTEnter (idNodeNameFirstGrandChildNode, idFirstChildNode, T); /*Entry in DT for the name pointing to <id> declaration*/
+			Decorate(idNameFirstGrandChildNode, constNode); /*Setup mode*/ /*Pointing to 'const' node from the const's variable name (lValue) */
+			
+			/*Below code is to infer type and setup the decorations for the <id> node's type.*/
+			if (NodeName(idSecondChildNode) == IntegerNode) {
+				intNode = idSecondChildNode;
+				Temp = Child (Child (RootOfTree(1), 2), 1); /*Get first intrinsic type node (the one above integer's <id>).*/
+				Decorate(idFirstChildNode,Temp); /*Setup type*//*Decorate <id> in declaration with the type, here a pointer to the typeNode above the integer id's typeDeclaration.*/
+			} else if  (NodeName(idSecondChildNode) == CharNode) {
+				charNode = idSecondChildNode;
+				Temp = Child (Child (RootOfTree(1), 2), 3); /*Get third intrinsic type node (the one above char's <id>).*/
+				Decorate(idFirstChildNode,Temp); /*Setup type*//*Decorate <id> in declaration with the type, here a pointer to the typeNode above the char id's typeDeclaration.*/
+			} else if (NodeName(idSecondChildNode) == IdentifierNode) {
+			  	idNameSecondGrandChildNode = Child(idSecondChildNode, 1);
+				idNodeNameSecondGrandChild = NodeName(idNameSecondGrandChildNode);
+				Decl = Lookup(idNodeNameSecondGrandChild, T); /*For constants already defined OR literals (true,false) */
+				Type = Decoration(Decl);
+				Decorate(idFirstChildNode,Type); /*Setup type*//*Decorate <id> in declaration with the type, here a pointer to the typeNode above the inferred id's typeDeclaration.*/
+			    /*Check mode for when the second child of const is <id>. Only legal values here are const and lit.*/
+				Mode = NodeName(Decoration(Child(Decl,1)));
+	            if (Mode != "const" || Mode != "lit")
+	            {
+	               ErrorHeader(T);
+	               printf ("Cannot assign variables or types to constants!\n");
+	               printf ("\n");
+	            }
+				Decorate(idSecondChildNode,Decl);
+			}
+				
+			break;			 
 
 
       case DclnsNode :

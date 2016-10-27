@@ -26,9 +26,7 @@ STR     \"[^\"]+\"
 \n         	{ column = 1; line++; }
 "program"   { return rule(PROGRAM); }
 "var" 		{ return rule(VAR); }
-"integer" 	{ return rule(INTEGER); }
-"boolean" 	{ return rule(BOOLEAN); }
-"char" 		{ return rule(CHAR); }
+"const" 	{ return rule(CONST); }
 "begin" 	{ return rule(BEGINX); }
 "end" 		{ return rule(END); }
 ":=" 		{ return rule(ASSIGNMENT); }
@@ -65,6 +63,7 @@ STR     \"[^\"]+\"
 "otherwise" { return rule(OTHERWISE); }
 {INT}		{ return node(INTEGER_NUM); }
 {IDENT}		{ return node(IDENTIFIER); }
+{LIT}		{ return node(CHARLIT); }
 "{"		{ column += yyleng; BEGIN( COMM1 ); }
 <COMM1>[^}\n]+  { column += yyleng; }
 <COMM1>"}"	{ column += yyleng; BEGIN( INITIAL ); }
