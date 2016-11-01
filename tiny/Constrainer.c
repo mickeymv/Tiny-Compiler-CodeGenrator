@@ -460,7 +460,7 @@ void ProcessNode (TreeNode T)
    int Kid, N;
    String Name1, Name2, Mode;
    TreeNode Decl, Type, Type1, Type2, Type3, Temp, constNode, idFirstChildNode, idSecondChildNode, idNameFirstGrandChildNode, idNodeNameFirstGrandChildNode, idNameSecondGrandChildNode, idNodeNameSecondGrandChild, intNode, charNode;
-
+   TreeNode ConstDeclareIdNode, ConstDeclareNameNode, ConstValueIdNode, ConstValueName;
    if (TraceSpecified)
    {
       fprintf (TraceFile,
@@ -548,23 +548,45 @@ void ProcessNode (TreeNode T)
 		 DTEnter (NodeName(Child(Child(T,1), 1)), Child(T, 1), T); 
 		 Decorate (Child(Child(T, 1), 1), T); /*decorate node under <id> node with integer/boolean/char/Color with 'type'*/
 		 /*The below code is to define how to decorate the <id> nodes and its siblings (if applicable) with type */
-		 if(NKids(T) == 1) /*For integer and char*/
-			 Decorate (Child(T, 1), T); /*TODO: Do the same for synonyms*/
+		 if(NKids(T) == 1) /*For integer and char*/ {
+			 Decorate (Child(T, 1), T); 
+		 }
 		 else /*Two children under type node*/
-		 	 if(NKids(T) > 1 && NodeName(Child(T, 2)) == LitNode) { /*For enumerations, second child is litnode*/
+			 /*For enumerations, second child is litnode*/
+		 {
+		 	 if(NKids(T) == 2 && NodeName(Child(T, 2)) == LitNode) { 
 			 Decorate (Child(T,1), T);
 		     for (Kid = 1; Kid <= NKids(Child(T,2)); Kid++){
             	 Decorate (Child(Child(T,2), Kid), T); /*Decorate <id> of enum with 'type'*/
 				 DTEnter (NodeName(Child(Child(Child(T,2), Kid), 1)),Child(Child(T,2),Kid),Child(T,2));
 				 Decorate (Child(Child(Child(T,2), Kid), 1), Child(T, 2));
 			 }
-		 	}
- 
-		 
-			 /* For synonyms, /*Second child is identifier */
-		 	/*else if(NKids(T) > 1 && NodeName(Child(T,2)) == IdentifierNode))
-		 	 ExpressionNode(Child(T,2));
-			 */
+		 	} /* For synonyms, /*Second child is identifier */
+		 	else if(NKids(T) == 2 && NodeName(Child(T,2)) == IdentifierNode){
+		 	 ConstDeclareIdNode = Child(T,1);
+		     ConstDeclareNameNode = Child(ConstDeclareIdNode,1);
+			 ConstValueIdNode = Child(T,2);
+			 ConstValueName = NodeName(Child(ConstValueIdNode,1));
+			 
+			 DTEnter(ConstDeclareNameNode, ConstDeclareIdNode); /*DTEnter the name of new synonym to point to it's <id> declaration*/
+			 Decorate(ConstDeclareNameNode, T); /*The name of the synonym will point to the 'type' node, which is the mode of the 'name' */
+				 
+			 /*Infer type of the const value*/	 
+			Decl = Lookup(ConstValueName, T);
+			 Type = Decoration(Decl);
+			 Decorate(ConstDeclareIdNode, Type); /*The id of the synonym will point to the 'type' node, which is the mode of the 'name' */
+			 Decorate(ConstValueIdNode, Decl); /*The <id> of the type should point to the <id> of where the type is first declared.*/
+			/*Decorate <id> in declaration with the type, here a pointer to the typeNode above the inferred id's typeDeclaration.*/
+		    /*Check mode for when the second child of 'type' is <id> (for synonyms). Only legal values here is 'type'.*/
+			Mode = NodeName(Decoration(Child(Decl,1)));
+            if (Mode != TypeNode)
+            {
+               ErrorHeader(T);
+               printf ("Can only assign types to other types!\n");
+               printf ("\n");
+            }
+		 }
+	 }
          break;
 		 
        case ConstsNode :  
@@ -597,17 +619,20 @@ void ProcessNode (TreeNode T)
 			if (NodeName(idSecondChildNode) == IntegerNode) {
 				intNode = idSecondChildNode;
 				Temp = Child (Child (RootOfTree(1), 2), 1); /*Get first intrinsic type node (the one above integer's <id>).*/
-				Decorate(idFirstChildNode,Temp); /*Setup type*//*Decorate <id> in declaration with the type, here a pointer to the typeNode above the integer id's typeDeclaration.*/
+				Decorate(idFirstChildNode,Temp); /*Setup type*/
+				/*Decorate <id> in declaration with the type, here a pointer to the typeNode above the integer id's typeDeclaration.*/
 			} else if  (NodeName(idSecondChildNode) == CharNode) {
 				charNode = idSecondChildNode;
 				Temp = Child (Child (RootOfTree(1), 2), 3); /*Get third intrinsic type node (the one above char's <id>).*/
-				Decorate(idFirstChildNode,Temp); /*Setup type*//*Decorate <id> in declaration with the type, here a pointer to the typeNode above the char id's typeDeclaration.*/
+				Decorate(idFirstChildNode,Temp); /*Setup type*/
+				/*Decorate <id> in declaration with the type, here a pointer to the typeNode above the char id's typeDeclaration.*/
 			} else if (NodeName(idSecondChildNode) == IdentifierNode) {
 			  	idNameSecondGrandChildNode = Child(idSecondChildNode, 1);
 				idNodeNameSecondGrandChild = NodeName(idNameSecondGrandChildNode);
 				Decl = Lookup(idNodeNameSecondGrandChild, T); /*For constants already defined OR literals (true,false) */
 				Type = Decoration(Decl);
-				Decorate(idFirstChildNode,Type); /*Setup type*//*Decorate <id> in declaration with the type, here a pointer to the typeNode above the inferred id's typeDeclaration.*/
+				Decorate(idFirstChildNode,Type); /*Setup type*/
+				/*Decorate <id> in declaration with the type, here a pointer to the typeNode above the inferred id's typeDeclaration.*/
 			    /*Check mode for when the second child of const is <id>. Only legal values here are const and lit.*/
 				Mode = NodeName(Decoration(Child(Decl,1)));
 	            if (Mode != ConstNode && Mode != LitNode)
