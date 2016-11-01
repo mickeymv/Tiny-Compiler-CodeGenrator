@@ -1,0 +1,7 @@
+program pr3c46:
+type enumerated = (a,b,c,d,e,f);
+var
+	i : enumerated;
+begin
+	output(1);
+end pr3c46.

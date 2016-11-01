@@ -1,11 +1,18 @@
 %%
-Tiny       -> PROGRAM Name ':' Consts Dclns Body Name '.' 	=> "program";
-Consts     -> CONST	Const list ';'		=> "consts";
+Tiny       -> PROGRAM Name ':' Consts Types Dclns Body Name '.' 	=> "program";
+Consts     -> CONST	Const list ';'		=> "consts"
+		   -> 					     	=> "consts";
 Const      -> Name '='	ConstRVal		=> "const"
 		   -> 					     	=> "<null>";
 ConstRVal  -> Integer
 		   -> Character
 		   -> Name;
+Types     -> TYPE Typel list ';'		=> "types"
+		   -> 					     	=> "types";
+Typel     -> Name '=' '(' Enumerations ')' => "type"
+		  -> Name '=' Name 				=> "type"
+		  -> 					     	=> "<null>";	
+Enumerations -> Name list ','			=> "lit";		      
 Dclns      -> VAR (Dcln ';')*				=> "dclns"
            -> 					     	=> "dclns";
 Dcln       -> Name list ',' ':' Name			=> "dcln";

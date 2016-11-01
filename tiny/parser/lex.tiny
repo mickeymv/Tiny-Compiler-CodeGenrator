@@ -27,6 +27,7 @@ STR     \"[^\"]+\"
 "program"   { return rule(PROGRAM); }
 "var" 		{ return rule(VAR); }
 "const" 	{ return rule(CONST); }
+"type" 		{ return rule(TYPE); }
 "begin" 	{ return rule(BEGINX); }
 "end" 		{ return rule(END); }
 ":=" 		{ return rule(ASSIGNMENT); }
