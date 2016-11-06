@@ -18,7 +18,7 @@
 #define TypesNode      2
 #define TypeNode       3
 #define DclnsNode      4
-#define DclnNode       5
+#define VarNode        5
 #define IntegerTNode   6
 #define BooleanTNode   7
 #define BlockNode      8
@@ -75,7 +75,7 @@ typedef TreeNode UserType;
   control variable in InitializeConstrainer().
 *****************************************************************/
 char *node[] = { "program", "types", "type", "dclns",
-                 "dcln", "integer", "boolean", "block",
+                 "var", "integer", "boolean", "block",
                  "assign", "output", "if", "while", 
                  "<null>", "<=", "+", "-", "read",
                  "<integer>", "<identifier>", "**",
@@ -148,7 +148,7 @@ void InitializeConstrainer (int argc, char *argv[])
 
 void AddIntrinsics (void)
 {
-   TreeNode TempTree;
+   TreeNode TempTree, T;
 
    AddTree (TypesNode, RootOfTree(1), 2); /*Add types node under root (program) */
 
@@ -186,6 +186,12 @@ void AddIntrinsics (void)
    AddTree (FalseNode, TempTree, 1);
    TempTree = Child (Child (Child (Child (RootOfTree(1), 2), 2), 2), 2);
    AddTree (TrueNode, TempTree, 1);
+   
+
+T = Child (RootOfTree(1), 2); /*Get the types node.*/
+   TypeInteger = Child(T,1);
+ TypeBoolean = Child(T,2);
+ TypeChar = Child(T,3);
 }
 
 
@@ -458,9 +464,10 @@ UserType Expression (TreeNode T)
 void ProcessNode (TreeNode T) 
 {
    int Kid, N;
-   String Name1, Name2, Mode;
+   String Name1, Name2, Mode, VarTypeName;
    TreeNode Decl, Type, Type1, Type2, Type3, Temp, constNode, idFirstChildNode, idSecondChildNode, idNameFirstGrandChildNode, idNodeNameFirstGrandChildNode, idNameSecondGrandChildNode, idNodeNameSecondGrandChild, intNode, charNode;
    TreeNode ConstDeclareIdNode, ConstDeclareNameNode, ConstValueIdNode, ConstValueName;
+   TreeNode VarTypeIdNode, VarTypeNameNode, VarTypeNode;
    if (TraceSpecified)
    {
       fprintf (TraceFile,
@@ -538,23 +545,23 @@ void ProcessNode (TreeNode T)
       case TypesNode :  
          for (Kid = 1; Kid <= NKids(T); Kid++)
             ProcessNode (Child(T,Kid));
-         TypeInteger = Child(T,1);
-		 TypeBoolean = Child(T,2);
-		 TypeChar = Child(T,3);
          break;
 
 
       case TypeNode :         
+	  /*printf ("\n\nIn type node of %d\n\n", NodeName(Child(Child(T,1),1)));*/
 		 DTEnter (NodeName(Child(Child(T,1), 1)), Child(T, 1), T); 
 		 Decorate (Child(Child(T, 1), 1), T); /*decorate node under <id> node with integer/boolean/char/Color with 'type'*/
 		 /*The below code is to define how to decorate the <id> nodes and its siblings (if applicable) with type */
 		 if(NKids(T) == 1) /*For integer and char*/ {
+			/* printf ("\n1\n");*/
 			 Decorate (Child(T, 1), T); 
 		 }
 		 else /*Two children under type node*/
 			 /*For enumerations, second child is litnode*/
 		 {
 		 	 if(NKids(T) == 2 && NodeName(Child(T, 2)) == LitNode) { 
+			/*	 printf ("\n2\n");*/
 			 Decorate (Child(T,1), T);
 		     for (Kid = 1; Kid <= NKids(Child(T,2)); Kid++){
             	 Decorate (Child(Child(T,2), Kid), T); /*Decorate <id> of enum with 'type'*/
@@ -563,6 +570,7 @@ void ProcessNode (TreeNode T)
 			 }
 		 	} /* For synonyms, /*Second child is identifier */
 		 	else if(NKids(T) == 2 && NodeName(Child(T,2)) == IdentifierNode){
+			/*	printf ("\n3\n");*/
 		 	 ConstDeclareIdNode = Child(T,1);
 		     ConstDeclareNameNode = Child(ConstDeclareIdNode,1);
 			 ConstValueIdNode = Child(T,2);
@@ -648,22 +656,60 @@ void ProcessNode (TreeNode T)
 
 
       case DclnsNode :
-         for (Kid = 1; Kid <= NKids(T); Kid++)
+	  /*printf("\nIn declarations!\n");*/
+         for (Kid = 1; Kid <= NKids(T); Kid++) {
+			 /*printf("\nIn going to process child %d!\n",Kid);*/
             ProcessNode (Child(T,Kid));
+		}
+		
+		/*printf("\nThe DeclnTable is now;\n");
+		            PrintDclnTable(stdout);
+		*/				
          break;
 
 
-      case DclnNode :
-
-	 Name1 = NodeName (Child(T, NKids(T)));
-
-         Type1 = Lookup (Name1,T);
+      case VarNode :
+	  
+	  /*printf("\nIn the varNode %d with %d kids\n",T, NKids(T));
+	  	  
+	  printf("\n1\n");
+	  
+	  PrintTree(stdout,RootOfTree(1));
+		*/  
+	  VarTypeIdNode = Child(T, NKids(T));
+	  /*printf("\n2, varTypeIdNode is %d\n",VarTypeIdNode);*/
+	  VarTypeNameNode = Child(VarTypeIdNode, 1);
+      /*printf("\n3\n");*/
+	  VarTypeName = NodeName (VarTypeNameNode);
+	  
+/*	  printf("\nVar tree of %d with id:%d and name:%d\n", VarTypeName, VarTypeIdNode, VarTypeNameNode);*/
+	  
+	  Type1 = Lookup (VarTypeName,VarTypeIdNode);
+	  
+/*	  printf("\n<id> lookup of %d is:%d\n", VarTypeName, Type1);*/
+	  
+	  
+	  Decorate(VarTypeIdNode, Type1); /*We set <id> in usage to <id> in declaration to check*/
+	  
+/*	  printf("\nAfter trying to decorate <id> of %d WITH %d\n", VarTypeName, Type1);*/
+	  
+	  VarTypeNode = Decoration(Type1); /*Set type of all variable <id>s to this type*/
+	  
+/*	  printf("\nDecoration of %d is:%d\n", Type1, VarTypeNode);*/
+	  
+      if (NodeName(VarTypeNode) != TypeNode)
+      {
+         ErrorHeader(T);
+         printf ("Variables can be only be declared with a type (no const/var/literal)!\n");
+         printf ("\n");
+      }
 
          for (Kid  = 1; Kid < NKids(T); Kid++)
          {
-            DTEnter (NodeName(Child(Child(T,Kid),1)), Child(T,Kid), T);
-            Decorate (Child(T,Kid), Type1);
-
+			Temp = Child(T,Kid);
+            DTEnter (NodeName(Child(Temp,1)), Temp, T);
+            Decorate (Temp, VarTypeNode);
+			Decorate(Child(Temp,1),T);
          }
          break;
 

@@ -15,7 +15,7 @@ Typel     -> Name '=' '(' Enumerations ')' => "type"
 Enumerations -> Name list ','			=> "lit";		      
 Dclns      -> VAR (Dcln ';')*				=> "dclns"
            -> 					     	=> "dclns";
-Dcln       -> Name list ',' ':' Name			=> "dcln";
+Dcln       -> Name list ',' ':' Name			=> "var";
 Body       -> BEGINX Statement list ';' END      	=> "block";
 Statement  -> Name ASSIGNMENT Expression          	=> "assign"
 		   -> Name SWAP Name          				=> "swap"
