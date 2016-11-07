@@ -1,0 +1,17 @@
+program pr3c26:
+{ This program checks the output of both integers and characters.
+
+  OUTPUT SHOULD BE :
+         Big is   1000
+         Small is 10
+         chr(65 ) = A
+}
+const
+   big=1000;
+   small=10;
+var
+   x,y,z:integer;
+   a,b,c:char;
+   yes:boolean;
+begin
+end pr3c26.

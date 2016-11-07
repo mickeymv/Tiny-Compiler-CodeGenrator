@@ -67,6 +67,9 @@
 
 #define NumberOfNodes  50
 
+#define IdInDeclaration  0
+#define IdInUse  1
+
 typedef TreeNode UserType;
 
 /****************************************************************
@@ -145,6 +148,14 @@ void InitializeConstrainer (int argc, char *argv[])
       TraceSpecified = false;          
 }                        
 
+TreeNode ModeOf(TreeNode IdNode, int IdUsage) {
+	if (IdUsage == IdInDeclaration) { /*the <id> node is used in 'declaration'*/
+		return Decoration(Child(IdNode,1));
+	} else if (IdUsage == IdInUse) { /*the <id> node is used in 'usage'*/
+	    TreeNode Decl = Lookup(NodeName(Child(IdNode,1)),IdNode);
+	    return Decoration(Child(Decl,1));
+	}
+}
 
 void AddIntrinsics (void)
 {
@@ -468,6 +479,7 @@ void ProcessNode (TreeNode T)
    TreeNode Decl, Type, Type1, Type2, Type3, Temp, constNode, idFirstChildNode, idSecondChildNode, idNameFirstGrandChildNode, idNodeNameFirstGrandChildNode, idNameSecondGrandChildNode, idNodeNameSecondGrandChild, intNode, charNode;
    TreeNode ConstDeclareIdNode, ConstDeclareNameNode, ConstValueIdNode, ConstValueName;
    TreeNode VarTypeIdNode, VarTypeNameNode, VarTypeNode;
+   TreeNode LeftHandId, RightHandId;
    if (TraceSpecified)
    {
       fprintf (TraceFile,
@@ -723,6 +735,21 @@ void ProcessNode (TreeNode T)
       case AssignNode :
          Type1 = Expression (Child(T,1));
          Type2 = Expression (Child(T,2));
+		 
+		 LeftHandId = Child(T,1);
+		 RightHandId = Child(T,2);
+		 
+		 if (ModeOf(LeftHandId, IdInDeclaration) != VarNode) {
+             ErrorHeader(Child(T,1));
+             printf ("Left hand side of assignment should be a var!\n");
+             printf ("\n");
+		 }
+		 
+		 if (ModeOf(RightHandId, IdInUse) == TypeNode) {
+             ErrorHeader(Child(T,1));
+             printf ("Right hand side of assignment cannot be a type!\n");
+             printf ("\n");
+		 }
 
          if (Type1 != Type2)
          {
@@ -730,6 +757,9 @@ void ProcessNode (TreeNode T)
             printf ("ASSIGNMENT TYPES DO NOT MATCH\n");
             printf ("\n");
          }
+		 
+		Decorate(LeftHandId, Lookup(NodeName(Child(LeftHandId,1)),LeftHandId));
+		Decorate(RightHandId, Lookup(NodeName(Child(RightHandId,1)),RightHandId));
 		 
  	 	Temp = Lookup(FOR_CTXT,T); 		
  			/*   this variable must be different from all enclosing for loops' control variables. */
@@ -745,6 +775,15 @@ void ProcessNode (TreeNode T)
          case SwapNode :
             Type1 = Expression (Child(T,1));
             Type2 = Expression (Child(T,2));
+
+   		 LeftHandId = Child(T,1);
+   		 RightHandId = Child(T,2);
+		 
+   		 if (ModeOf(LeftHandId, IdInDeclaration) != VarNode && ModeOf(RightHandId, IdInDeclaration) != VarNode) {
+                ErrorHeader(T);
+                printf ("Both sides of swap instruction must be var!\n");
+                printf ("\n");
+   		 }
 
             if (Type1 != Type2)
             {
