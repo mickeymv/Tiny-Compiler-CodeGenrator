@@ -148,12 +148,19 @@ void InitializeConstrainer (int argc, char *argv[])
       TraceSpecified = false;          
 }                        
 
-TreeNode ModeOf(TreeNode IdNode, int IdUsage) {
+int ModeOf(TreeNode IdNode, int IdUsage) {
+	/*
+	printf("\nIn modeof with id %d and usage %d\n", IdNode, IdUsage);
+	*/
+	/*printf("\nIn ModeOf with IdNode:%s\n",NodeName(Child(IdNode,1)));*/
 	if (IdUsage == IdInDeclaration) { /*the <id> node is used in 'declaration'*/
-		return Decoration(Child(IdNode,1));
+	/*printf("\nMode of Id of %s is %d\n", NodeName(Child(IdNode,1)),Decoration(Child(IdNode,1)));*/
+		return NodeName(Decoration(Child(IdNode,1)));
 	} else if (IdUsage == IdInUse) { /*the <id> node is used in 'usage'*/
+	
 	    TreeNode Decl = Lookup(NodeName(Child(IdNode,1)),IdNode);
-	    return Decoration(Child(Decl,1));
+		/*printf("\nMode of Id of %s is %d\n", NodeName(Child(IdNode,1)),Decoration(Child(IdNode,1)));*/
+	    return NodeName(Decoration(Child(Decl,1)));
 	}
 }
 
@@ -738,13 +745,17 @@ void ProcessNode (TreeNode T)
 		 
 		 LeftHandId = Child(T,1);
 		 RightHandId = Child(T,2);
-		 
-		 if (ModeOf(LeftHandId, IdInDeclaration) != VarNode) {
+		 /*
+		 printf("\nMode of leftHandId is %d\n",ModeOf(LeftHandId, IdInUse));
+		 */
+		 if (ModeOf(LeftHandId, IdInUse) != VarNode) {
              ErrorHeader(Child(T,1));
              printf ("Left hand side of assignment should be a var!\n");
              printf ("\n");
 		 }
-		 
+		 /*
+		 printf("\nMode of rightHandId is %d\n",ModeOf(RightHandId, IdInUse));
+		 */
 		 if (ModeOf(RightHandId, IdInUse) == TypeNode) {
              ErrorHeader(Child(T,1));
              printf ("Right hand side of assignment cannot be a type!\n");
@@ -779,7 +790,7 @@ void ProcessNode (TreeNode T)
    		 LeftHandId = Child(T,1);
    		 RightHandId = Child(T,2);
 		 
-   		 if (ModeOf(LeftHandId, IdInDeclaration) != VarNode && ModeOf(RightHandId, IdInDeclaration) != VarNode) {
+   		 if (ModeOf(LeftHandId, IdInUse) != VarNode && ModeOf(RightHandId, IdInUse) != VarNode) {
                 ErrorHeader(T);
                 printf ("Both sides of swap instruction must be var!\n");
                 printf ("\n");
