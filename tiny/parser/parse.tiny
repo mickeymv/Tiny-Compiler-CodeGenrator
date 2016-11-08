@@ -19,7 +19,8 @@ Dcln       -> Name list ',' ':' Name			=> "var";
 Body       -> BEGINX Statement list ';' END      	=> "block";
 Statement  -> Name ASSIGNMENT Expression          	=> "assign"
 		   -> Name SWAP Name          				=> "swap"
-           -> OUTPUT '(' Expressions ')'           	=> "output"
+           -> OUTPUT '(' Outputs ')'           	=> "output"
+		   -> READ '(' Name list ',' ')'            => "read"
            -> IF Expression THEN Statement
                             ELSE Statement       	=> "if"
            -> IF Expression THEN Statement       	=> "if"
@@ -45,7 +46,9 @@ Otherwise	-> ';' OTHERWISE Statement					=> "otherwise"
 	   
 Statements	->	Statement list ';' ;
 	   
-Expressions -> 	 Expression list ',' ;
+Outputs -> 	 Outpute list ','; 
+Outpute			-> STRING                               => "<string>"
+				-> Expression;
 
 Expression -> Term	                         		
 	   -> Term LTE Term				=> "<="
@@ -74,8 +77,7 @@ Unary    -> '-' Unary                            	=> "-"
 Expo -> Primary EXP Expo 				=> "**"
 	 -> Primary;
 
-Primary    -> READ                                 	=> "read"
-			-> EOFFN						=> "eof"
+Primary    -> EOFFN						=> "eof"
            -> Name
            -> INTEGER_NUM				=> "<integer>"
 		   -> CHARLIT					=> "<char>"

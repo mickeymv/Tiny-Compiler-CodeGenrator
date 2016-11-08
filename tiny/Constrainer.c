@@ -64,8 +64,9 @@
 #define CharNode 48
 #define ConstsNode 49
 #define ConstNode 50
+#define StringNode 51
 
-#define NumberOfNodes  50
+#define NumberOfNodes  51
 
 #define IdInDeclaration  0
 #define IdInUse  1
@@ -87,11 +88,11 @@ char *node[] = { "program", "types", "type", "dclns",
 				"eof", "repeat", "swap", "<loop_ctxt>", "loop",
 				"exit", "upto", "<for_ctxt>", "downto", "case",
 				"case_clause", "otherwise", "lit", "char",
-				"<char>", "consts", "const"
+				"<char>", "consts", "const", "<string>"
                 };
 
 
-UserType TypeInteger, TypeBoolean, TypeChar;
+UserType TypeInteger, TypeBoolean, TypeChar, TypeString;
 boolean TraceSpecified;
 FILE *TraceFile;
 char *TraceFileName;
@@ -438,15 +439,16 @@ UserType Expression (TreeNode T)
             printf ("\n");
          }
          return (TypeInteger);
- 
-      case ReadNode :
-         return (TypeInteger);
 
          case EOFNode :
             return (TypeBoolean);
 
       case IntegerNode : 
          return (TypeInteger);
+		 
+         case StringNode : 
+		 TypeString = T;
+            return (TypeString);	 
 		 
 	
          case TrueNode : 
@@ -463,8 +465,6 @@ UserType Expression (TreeNode T)
             Decorate (T, Declaration);
             return (Decoration(Declaration));
          }
-         else
-            return (TypeInteger);
 
 
       default :
@@ -813,13 +813,28 @@ void ProcessNode (TreeNode T)
 	 			}
             break;	 
 
+	  case ReadNode :
+      for (Kid = 1; Kid <= NKids(T); Kid++) {
+         if (Expression (Child(T,Kid)) != TypeInteger && Expression (Child(T,Kid)) != TypeChar)
+         {
+            ErrorHeader(T);
+            printf ("Read vars MUST BE TYPE INTEGER or CHAR\n");
+            printf ("\n");
+         }
+		 if (ModeOf(Child(T,Kid), IdInUse) != VarNode) {
+	          ErrorHeader(Child(T,1));
+	          printf ("Identifiers in Read should be of type var!\n");
+	          printf ("\n");
+		 }
+ 		}
+	           break;
 
       case OutputNode :
          for (Kid = 1; Kid <= NKids(T); Kid++)
-            if (Expression (Child(T,Kid)) != TypeInteger)
+            if (Expression (Child(T,Kid)) != TypeInteger && Expression (Child(T,Kid)) != TypeChar)
             {
                ErrorHeader(T);
-               printf ("OUTPUT EXPRESSION MUST BE TYPE INTEGER\n");
+               printf ("OUTPUT EXPRESSION MUST BE TYPE INTEGER or CHAR\n");
                printf ("\n");
             }
          break;
