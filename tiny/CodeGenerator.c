@@ -116,10 +116,16 @@
 #define RangeNode 89			/* '..' */
 #define CaseClauseNode 90			/* case_clause */
 #define OtherwiseNode 91		/* otherwise */
+#define LitNode 92
+#define CharTNode 93
+#define CharNode 94
+#define ConstsNode 95
+#define ConstNode 96
+#define VarNode 97
 
 
 
-#define    NumberOfNodes 91 
+#define    NumberOfNodes 97
 typedef int Mode;
 
 FILE *CodeFile;
@@ -144,13 +150,13 @@ char *node_name[] =
      "boolean","block","assign","output","if","while",
      "<null>","<=","+","-","read","<integer>","<identifier>","**","not","or","*",
  	"/","and","mod","=","<>",">=","<",">","true","false","eof","repeat","swap","loop",
-	"exit", "upto", "downto", "case", "..", "case_clause", "otherwise"};
+	"exit", "upto", "downto", "case", "..", "case_clause", "otherwise", "lit", "char",
+	"<char>", "consts", "const", "var"};
 
 
 void CodeGenerate(int argc, char *argv[])
 {
    int NumberTrees;
-
    InitializeCodeGenerator(argc,argv);
    Tree_File = Open_File("_TREE", "r"); 
    NumberTrees = Read_Trees();
@@ -235,27 +241,36 @@ String MakeStringOf(int Number)
 
 void Reference(TreeNode T, Mode M, Clabel L)
 {
-   int Addr,OFFSET;
-   String  Op;
-
+   int Addr,OFFSET, IdMode;
+   String  Op; 
    Addr = Decoration(Decoration(T));
-   OFFSET = FrameDisplacement (Addr) ;
    switch (M)
    {
-      case LeftMode  :  DecrementFrameSize();
+      case LeftMode  :  
                         if (ProcLevel (Addr) == 0) 
                            Op = SGVOP;
                         else
                            Op = SLVOP;
+					    OFFSET = FrameDisplacement (Addr) ;
+						CodeGen1 (Op,MakeStringOf(OFFSET),L);
+						DecrementFrameSize();
 	                break;
-      case RightMode :  IncrementFrameSize();
-                        if (ProcLevel (Addr) == 0) 
-                           Op = LGVOP;
-          	        else
-                           Op = LLVOP;
+      case RightMode :  	  
+	IncrementFrameSize();
+      if (ProcLevel (Addr) == 0) 
+         Op = LGVOP;
+  		else
+         Op = LLVOP;
+      IdMode = NodeName(Decoration(Child(Decoration(T),1)));
+    		 if (IdMode == ConstNode || IdMode == LitNode) {
+    		  OFFSET  = Decoration(Decoration(T));
+			  CodeGen1 (LITOP, OFFSET, L);
+		 } else {
+		 	  OFFSET = FrameDisplacement (Addr) ;
+			  CodeGen1 (Op,MakeStringOf(OFFSET),L);
+		 }
                         break;
    }
-   CodeGen1 (Op,MakeStringOf(OFFSET),L);
 }
 
 
@@ -268,7 +283,8 @@ int NKids (TreeNode T)
 
 void Expression (TreeNode T, Clabel CurrLabel)
 {
-   int Kid;
+   TreeNode Decl;
+   int Kid, Mode, Value;
    Clabel Label1;
 
    if (TraceSpecified)
@@ -290,13 +306,13 @@ void Expression (TreeNode T, Clabel CurrLabel)
       	break;
 	
         case TrueNode :
+		IncrementFrameSize();
         CodeGen1 (LITOP, MakeStringOf(1), CurrLabel); 
-        IncrementFrameSize();
         break;	
 		
         case FalseNode :
-        CodeGen1 (LITOP, MakeStringOf(0), CurrLabel); 
         IncrementFrameSize();
+        CodeGen1 (LITOP, MakeStringOf(0), CurrLabel); 
         break;	
 			
 	        case GTNode :
@@ -408,18 +424,18 @@ void Expression (TreeNode T, Clabel CurrLabel)
          break;
 
       case ReadNode :
+	  IncrementFrameSize();
          CodeGen1 (SOSOP, OSINPUT, CurrLabel);
-         IncrementFrameSize();
          break;
 		 
          case EOFNode :
+         IncrementFrameSize();
             CodeGen1 (SOSOP, OSEOF, CurrLabel);
-            IncrementFrameSize();
             break;	 
 
       case IntegerNode :
+	  	IncrementFrameSize();
          CodeGen1 (LITOP, NodeName (Child(T,1)), CurrLabel);
-         IncrementFrameSize();
          break;
 
       case IdentifierNode :
@@ -455,8 +471,10 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
    switch (NodeName(T))
    {
       case ProgramNode :
-         CurrLabel = ProcessNode (Child(T,NKids(T)-2),CurrLabel);
-         CurrLabel = ProcessNode (Child(T,NKids(T)-1),NoLabel);
+         CurrLabel = ProcessNode (Child(T,2),CurrLabel);
+		 for(Kid=3;Kid<NKids(T);Kid++) {
+         CurrLabel = ProcessNode (Child(T,Kid),CurrLabel);		 
+	 }
          return (CurrLabel);
 
       case TypesNode :
@@ -464,27 +482,29 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
             CurrLabel = ProcessNode (Child(T,Kid), CurrLabel);
          return (CurrLabel);
 
-      case TypeNode :
-         return (CurrLabel);
+      case TypeNode :	  
+	 if(NKids(T) == 2 && NodeName(Child(T,2)) == LitNode) {
+  		 ProcessNode(Child(T,2), NoLabel);
+  	 }
+	     return (CurrLabel);
+
 
       case DclnsNode :
-         for (Kid = 1; Kid <= NKids(T); Kid++)
-            CurrLabel = ProcessNode (Child(T,Kid), CurrLabel);
+	   for (Kid = 1; Kid <= NKids(T); Kid++)
+           CurrLabel = ProcessNode (Child(T,Kid), CurrLabel);
          if (NKids(T) > 0)
             return (NoLabel);
          else
             return (CurrLabel);
 
-      case DclnNode :
+      case VarNode :
+	  
          for (Kid = 1; Kid < NKids(T); Kid++)
          {
-            if (Kid != 1)
-               CodeGen1 (LITOP,MakeStringOf(0),NoLabel);
-            else
-               CodeGen1 (LITOP,MakeStringOf(0),CurrLabel);
             Num = MakeAddress();
             Decorate ( Child(T,Kid), Num);
             IncrementFrameSize();
+			CodeGen1 (LITOP, MakeStringOf(0), NoLabel);
          }
          return (NoLabel);                 
 
@@ -539,13 +559,13 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
     case ForUptoNode :
             Expression (Child(T,3), CurrLabel); /*  evaluate F */
 			Expression (Child(T,2), NoLabel);	/*  evaluate I */
-            Reference (Child(Child(T,1),1), LeftMode, NoLabel); /*  store to i */
+            Reference (Child(T,1), LeftMode, NoLabel); /*  store to i */
             Label1 = MakeLabel();
 			Label2 = MakeLabel();
 			Label3 = MakeLabel();
 			CodeGen0 (DUPOP, Label1);
 			IncrementFrameSize();
-			Reference (Child(Child(T,1),1), RightMode, NoLabel); /*  Load from i */
+			Reference (Child(T,1), RightMode, NoLabel); /*  Load from i */
 			if (NodeName(T) == ForUptoNode) {
 				CodeGen1 (BOPOP, BGE, NoLabel);
 			} else {
@@ -555,19 +575,19 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			CodeGen2 (CONDOP,Label2,Label3, NoLabel);
 			DecrementFrameSize();
             CascadeLabel = ProcessNode(Child(T,4),Label2); /*  Process S */
-			Reference (Child(Child(T,1),1), RightMode, CascadeLabel); /*  Load from i */
+			Reference (Child(T,1), RightMode, CascadeLabel); /*  Load from i */
 			if (NodeName(T) == ForUptoNode) {
 				CodeGen1 (UOPOP, USUCC, NoLabel);
 			} else {
 				CodeGen1 (UOPOP, UPRED, NoLabel);
 			}
-			Reference (Child(Child(T,1),1), LeftMode, NoLabel); /*  store to i */
+			Reference (Child(T,1), LeftMode, NoLabel); /*  store to i */
             CodeGen1 (GOTOOP, Label1, NoLabel);
             CodeGen1 (POPOP, MakeStringOf(1), Label3);
 			DecrementFrameSize();
-			CodeGen1 (LITOP, MakeStringOf(0), NoLabel); /*  After loop is done, clear the control variable to zero */
 			IncrementFrameSize();
-            Reference (Child(Child(T,1),1), LeftMode, NoLabel); /*  store to i */
+			CodeGen1 (LITOP, MakeStringOf(0), NoLabel); /*  After loop is done, clear the control variable to zero */
+            Reference (Child(T,1), LeftMode, NoLabel); /*  store to i */
             return (NoLabel);  		            
 
 	
@@ -593,8 +613,8 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			CodeGen1 (BOPOP, BGE, NoLabel);
 			DecrementFrameSize();
 			CodeGen0 (SWAPOP, NoLabel);					
+			IncrementFrameSize();			
 			CodeGen1 (LITOP, NodeName (Child(Child(Child(Child(T,Kid),1),2),1)), NoLabel); /*  Put the upper case range literal 'u' on top of the stack */
-			IncrementFrameSize();
 			CodeGen1 (BOPOP, BLE, NoLabel);
 			DecrementFrameSize();
 			CodeGen1 (BOPOP, BAND, NoLabel);
@@ -628,8 +648,8 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			CodeGen1 (BOPOP, BGE, NoLabel);
 			DecrementFrameSize();
 			CodeGen0 (SWAPOP, NoLabel);					
+			IncrementFrameSize();			
 			CodeGen1 (LITOP, NodeName (Child(Child(Child(Child(T,NKids(T)),1),2),1)), NoLabel); /*  Put the upper case range literal 'u' on top of the stack */
-			IncrementFrameSize();
 			CodeGen1 (BOPOP, BLE, NoLabel);
 			DecrementFrameSize();
 			CodeGen1 (BOPOP, BAND, NoLabel);
@@ -705,6 +725,24 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
                DecrementFrameSize();
                return (Label2);				 
 
+	   case LitNode : 
+	         for(Kid=1; Kid<=NKids(T); Kid++)
+				 Decorate(Child(T,Kid),MakeStringOf(Kid-1));
+			 return CurrLabel;
+		
+  case ConstsNode : 
+ 	  	  for(Kid=1; Kid<=NKids(T); Kid++)
+ 	  		ProcessNode(Child(T,Kid), NoLabel);	
+ 		  return CurrLabel;	 
+		  
+		  
+ 	case ConstNode : 	  
+ 	 if(NodeName(Child(T,2)) != IdentifierNode) {
+ 		 Decorate(Child(T,1), NodeName(Child(Child(T,2),1)));
+ 	 } else {
+ 	 	Decorate(Child(T,1), Decoration(Lookup(NodeName(Child(Child(T,2),1)),T)));
+ 	 }
+ 		return CurrLabel;		
 
        case NullNode : return(CurrLabel);
 
