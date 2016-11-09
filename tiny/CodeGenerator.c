@@ -449,6 +449,9 @@ void Expression (TreeNode T, Clabel CurrLabel)
 		 
       case CharNode :
    	  	IncrementFrameSize();
+		/*
+		printf("\n\nThe char is %c\n\n",Character(NodeName(Child(T, 1)), 2));
+		*/
 		CodeGen1 (LITOP, MakeStringOf(Character(NodeName(Child(T, 1)), 2)), CurrLabel);
 		/*
 		CharToInt = (unsigned int) Character(NodeName (Child(T,1)),2); /*Convert to unsigned int*/
@@ -888,10 +891,21 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 		  
 		  
  	case ConstNode : 	  
- 	 if(NodeName(Child(T,2)) != IdentifierNode) {
- 		 Decorate(Child(T,1), NodeName(Child(Child(T,2),1)));
- 	 } else {
- 	 	Decorate(Child(T,1), Decoration(Lookup(NodeName(Child(Child(T,2),1)),T)));
+ 	 if(NodeName(Child(T,2)) == IntegerNode) {
+		 /*
+		 printf("\n\nConst integer!\n\n");
+ 		 */
+		 Decorate(Child(T,1), NodeName(Child(Child(T,2),1)));
+ 	 } else if(NodeName(Child(T,2)) == CharNode) {
+		 /*
+		 printf("\n\nConst char!\n\n");
+ 		 */
+		 Decorate(Child(T,1), MakeStringOf(Character(NodeName(Child(Child(T,2),1)),2)));
+ 	 } else if(NodeName(Child(T,2)) == IdentifierNode) {
+		 /*
+		 printf("\n\nConst id!\n\n");
+ 	 	*/
+		Decorate(Child(T,1), Decoration(Lookup(NodeName(Child(Child(T,2),1)),T)));
  	 }
  		return CurrLabel;		
 

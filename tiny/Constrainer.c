@@ -452,6 +452,7 @@ UserType Expression (TreeNode T)
          return (TypeInteger);
 		 
       case CharNode : 
+	  Decorate(T, TypeChar);
             return (TypeChar);	 
 		 
          case StringNode : 
