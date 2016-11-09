@@ -295,10 +295,10 @@ UserType Expression (TreeNode T)
 		          Type1 = Expression (Child(T,1));
 		          Type2 = Expression (Child(T,2));
 
-		          if (Type1 != Type2 || Type2 != TypeInteger)
+		          if (Type1 != Type2)
 		          {
 		             ErrorHeader(Child(T,1));
-		             printf ("ARGUMENTS OF '>' MUST BE OF TYPE INTEGER!\n");
+		             printf ("ARGUMENTS OF '>' MUST BE OF same type!\n");
 		             printf ("\n");
 		          }
 		          return (TypeBoolean);
