@@ -615,9 +615,9 @@ void ProcessNode (TreeNode T)
 			*/
 			if(NodeName(Child(Child(T,Kid),1)) == IdentifierNode) {
 				/*
-				printf("\n\nCase literal is Identifier!\n\n");
+				printf("\n\nCase literal is Identifier and is a %d!\n\n", NodeName(Decoration(Child(Decoration(Child(Child(T,Kid),1)),1))));
 				*/
-				if(NodeName(Decoration(Decoration(Child(Child(T,Kid),1)))) != VarNode || NodeName(Decoration(Decoration(Child(Child(T,Kid),1)))) != ConstNode) {
+				if(NodeName(Decoration(Child(Decoration(Child(Child(T,Kid),1)),1))) != LitNode && NodeName(Decoration(Child(Decoration(Child(Child(T,Kid),1)),1))) != ConstNode) {
 					ErrorHeader(Child(Child(T,Kid),1));
 					printf ("case label must be const or lit!\n");
 				}
@@ -636,8 +636,9 @@ void ProcessNode (TreeNode T)
 			if(NodeName(Child(Child(T,Kid),1)) == IdentifierNode) {
 				/*
 				printf("\n\nCase literal is Identifier!\n\n");
+				printf("\n\nCase literal is Identifier and is a %d!\n\n", NodeName(Decoration(Decoration(Child(Child(T,Kid),1)))));
 				*/
-				if(NodeName(Decoration(Decoration(Child(Child(T,Kid),1)))) != VarNode || NodeName(Decoration(Decoration(Child(Child(T,Kid),1)))) != ConstNode) {
+				if(NodeName(Decoration(Child(Decoration(Child(Child(T,Kid),1)),1))) != LitNode && NodeName(Decoration(Child(Decoration(Child(Child(T,Kid),1)),1))) != ConstNode) {
 					ErrorHeader(Child(Child(T,Kid),1));
 					printf ("case label must be const or lit!\n");
 				}
