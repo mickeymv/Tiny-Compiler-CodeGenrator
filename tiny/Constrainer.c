@@ -852,9 +852,9 @@ void ProcessNode (TreeNode T)
    		 LeftHandId = Child(T,1);
    		 RightHandId = Child(T,2);
 		 
-   		 if (ModeOf(LeftHandId, IdInUse) != VarNode && ModeOf(RightHandId, IdInUse) != VarNode) {
+   		 if (ModeOf(LeftHandId, IdInUse) != VarNode || ModeOf(RightHandId, IdInUse) != VarNode) {
                 ErrorHeader(T);
-                printf ("Both sides of swap instruction must be var!\n");
+                printf ("Both sides of swap instruction must be type var!\n");
                 printf ("\n");
    		 }
 
