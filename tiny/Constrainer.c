@@ -69,8 +69,9 @@
 #define PredNode 53
 #define OrdNode 54
 #define ChrNode 55
+#define CaseRangeNode 56
 
-#define NumberOfNodes  55
+#define NumberOfNodes  56
 
 #define IdInDeclaration  0
 #define IdInUse  1
@@ -93,7 +94,7 @@ char *node[] = { "program", "types", "type", "dclns",
 				"exit", "upto", "<for_ctxt>", "downto", "case",
 				"case_clause", "otherwise", "lit", "char",
 				"<char>", "consts", "const", "<string>", "succ",
-				"pred", "ord", "chr"
+				"pred", "ord", "chr", ".."
                 };
 
 
@@ -451,6 +452,7 @@ UserType Expression (TreeNode T)
             return (TypeBoolean);
 
       case IntegerNode : 
+	  	Decorate (T,TypeInteger);
          return (TypeInteger);
 		 
       case CharNode : 
@@ -472,8 +474,6 @@ UserType Expression (TreeNode T)
             Decorate (T, Declaration);
             return (Decoration(Declaration));
          }
-		 else /*TODO: fallback, should not reach here!*/
-			 return (TypeInteger);
 
 			 
 	  case SuccNode:
@@ -497,6 +497,22 @@ UserType Expression (TreeNode T)
        }
 	   Decorate(T,TypeChar);
 	   return TypeChar;
+	   
+	   case CaseRangeNode:
+	   	Type1 = Expression(Child(T,1));
+		Type2 = Expression(Child(T,2));
+		/*
+		printf ("\n\nIn case range node, types are %d and %d\n\n", Type1, Type2);
+        */
+		if (Type1 != Type2)
+        {
+           ErrorHeader(T);
+           printf ("Range literals must be of same type!\n");
+           printf ("\n");
+        }
+	   	return Type1;
+	   
+	   
 
 
       default :
@@ -579,7 +595,11 @@ void ProcessNode (TreeNode T)
 			
 			
 		case CaseNode : 
-        Type1 = Expression (Child(T,1));
+        Type1 = Expression (Child(T,1)); /*type of Case's expression*/
+		/*
+		printf("\n\nIn case node, Expression is of type %d\n\n",Type1);
+		Decorate(T,Type1);
+		*/
 		/*
         if (Type1 != TypeInteger)			/*  TODO: Make sure to constrain case literals to be same type as expression in future. */
         /*{
@@ -588,11 +608,45 @@ void ProcessNode (TreeNode T)
            printf ("\n");
         }
 		*/
-        for (Kid = 2; Kid < NKids(T); Kid++)
+        for (Kid = 2; Kid < NKids(T); Kid++) {
+			Type2 = Expression(Child(Child(T,Kid),1)); /*Expression on Case_Literal (can be integer, char or identifier, or a range of these) */
+			/*
+			printf("\n\nNodename of case label is %d \n\n",NodeName(Child(Child(T,Kid),1)));
+			*/
+			if(NodeName(Child(Child(T,Kid),1)) == IdentifierNode) {
+				/*
+				printf("\n\nCase literal is Identifier!\n\n");
+				*/
+				if(NodeName(Decoration(Decoration(Child(Child(T,Kid),1)))) != VarNode || NodeName(Decoration(Decoration(Child(Child(T,Kid),1)))) != ConstNode) {
+					ErrorHeader(Child(Child(T,Kid),1));
+					printf ("case label must be const or lit!\n");
+				}
+			}
            ProcessNode (Child(Child(T,Kid),2)); /*  Process statements of case_clauses */
-		
+		   /*
+		   printf("\n\n%d Expression is of type %d\n\n",Kid, Type1);
+		   */
+		   if(Type1 != Type2) {
+			ErrorHeader(T);
+			printf ("Case literals should be the same type as the case expression.\n");
+		   }
+	   }
 		if (NodeName(Child(T,NKids(T))) == CaseClauseNode) {
+			Type2 = Expression(Child(Child(T,Kid),1)); /*Expression on Case_Literal (can be integer, char or identifier, or a range of these) */
+			if(NodeName(Child(Child(T,Kid),1)) == IdentifierNode) {
+				/*
+				printf("\n\nCase literal is Identifier!\n\n");
+				*/
+				if(NodeName(Decoration(Decoration(Child(Child(T,Kid),1)))) != VarNode || NodeName(Decoration(Decoration(Child(Child(T,Kid),1)))) != ConstNode) {
+					ErrorHeader(Child(Child(T,Kid),1));
+					printf ("case label must be const or lit!\n");
+				}
+			}
 			ProcessNode (Child(Child(T,NKids(T)),2));	/*  Process statement of last case_clause (when there is no otherwise clause defined) */
+ 		   if(Type1 != Type2) {
+ 			ErrorHeader(T);
+ 			printf ("Case literals should be the same type as the case expression.\n");
+ 		   }
 		} else if (NodeName(Child(T,NKids(T))) == OtherwiseNode) {
 			ProcessNode (Child(Child(T,NKids(T)),1));	/*  Process statement of otherwise clause defined */
 		}
