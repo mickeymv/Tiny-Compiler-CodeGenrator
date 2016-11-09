@@ -894,7 +894,13 @@ void ProcessNode (TreeNode T)
 	  
          for (Kid = 1; Kid <= NKids(T); Kid++) {
 			 if(NodeName(Child(T,Kid)) != StringNode) {
-			Expression (Child(T,Kid));
+			Type1 = Expression (Child(T,Kid));
+            if (Type1 != TypeInteger && Type1 != TypeChar)
+            {
+               ErrorHeader(T);
+               printf ("OUTPUT EXPRESSION MUST BE TYPE INTEGER or CHAR or STRING\n");
+               printf ("\n");
+            }
 		}
 			/*
             if (Expression (Child(T,Kid)) != TypeInteger && Expression (Child(T,Kid)) != TypeChar)
