@@ -670,15 +670,6 @@ void ProcessNode (TreeNode T)
 			
 			idNameFirstGrandChildNode = Child(idFirstChildNode, 1);
 			idNodeNameFirstGrandChildNode = NodeName(idNameFirstGrandChildNode);
-			/*
-			printf ("\nGoing to do DTEnter for name: %d pointing to %d\n", idNodeNameFirstGrandChildNode, NodeName(idFirstChildNode));
-			*/
-			DTEnter (idNodeNameFirstGrandChildNode, idFirstChildNode, T); /*Entry in DT for the name pointing to <id> declaration*/
-			/*
-			printf("\nThe DeclnTable is now;\n");
-			            PrintDclnTable(stdout);
-			*/			
-			Decorate(idNameFirstGrandChildNode, constNode); /*Setup mode*/ /*Pointing to 'const' node from the const's variable name (lValue) */
 			
 			/*Below code is to infer type and setup the decorations for the <id> node's type.*/
 			if (NodeName(idSecondChildNode) == IntegerNode) {
@@ -708,6 +699,16 @@ void ProcessNode (TreeNode T)
 	            }
 				Decorate(idSecondChildNode,Decl);
 			}
+			
+			/*
+			printf ("\nGoing to do DTEnter for name: %d pointing to %d\n", idNodeNameFirstGrandChildNode, NodeName(idFirstChildNode));
+			*/
+			DTEnter (idNodeNameFirstGrandChildNode, idFirstChildNode, T); /*Entry in DT for the name pointing to <id> declaration*/
+			/*
+			printf("\nThe DeclnTable is now;\n");
+			            PrintDclnTable(stdout);
+			*/			
+			Decorate(idNameFirstGrandChildNode, constNode); /*Setup mode*/ /*Pointing to 'const' node from the const's variable name (lValue) */
 				
 			break;			 
 
