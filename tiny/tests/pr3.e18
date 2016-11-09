@@ -9,6 +9,6 @@ const k=1;
 begin
    for x:=k to p do  
 # indentifier x is undeclared
-       output("error");
+       output('error');
 # error in output !! single quotes for strings
 end pr3e18.

@@ -1,0 +1,16 @@
+program pr3e05:
+
+const x = 'a';
+      y = 'b';
+      z = 'c';
+
+var i:integer;
+    c,d,g,h:char;
+
+begin
+c:=n;
+d:='f';
+g:='dsfdsf';
+h:=''';
+  
+end pr3e05.
