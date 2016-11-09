@@ -835,7 +835,8 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			CodeGen1 (POPOP, MakeStringOf(1), NextLabel);
 	   } else if (NodeName(Child(T,NKids(T))) == OtherwiseNode) {
 	   		CodeGen1 (POPOP, MakeStringOf(1), NextLabel);
-			ProcessNode(Child(Child(T,NKids(T)),1),NoLabel); /*  Process statement within the case_clause */
+			Label1 = ProcessNode(Child(Child(T,NKids(T)),1),NoLabel); /*  Process statement within the case_clause */
+	   	 	CodeGen0 (NOP, Label1);
 	   }
 	   
 		return (ExitLabel);
