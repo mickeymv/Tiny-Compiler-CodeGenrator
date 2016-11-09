@@ -602,13 +602,16 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 											                                CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
 											                                DecrementFrameSize();
 											                                CurrLabel = NoLabel;
-											                        } else if (NodeName(Child(T, Kid)) == ChrNode) {
+											                        } 
+																	/*
+																	else if (NodeName(Child(T, Kid)) == ChrNode) {
 											                        	Expression (Child(T,Kid), CurrLabel);
 																		CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
 										                                DecrementFrameSize();
 										                                CurrLabel = NoLabel;
 											                        }
-			                        
+																	*/
+																	
 			                        else if(NodeName(Child(T, Kid)) == StringNode){
 										/*Iterate through every character for string*/
 			                                Num = 2; /*Ignore first " quote*/

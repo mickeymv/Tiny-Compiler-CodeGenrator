@@ -457,10 +457,6 @@ UserType Expression (TreeNode T)
 	  Decorate(T, TypeChar);
             return (TypeChar);	 
 		 
-         case StringNode : 
-		 TypeString = T;
-            return (TypeString);	 
-		 
 	
          case TrueNode : 
             return (TypeBoolean);
@@ -482,24 +478,13 @@ UserType Expression (TreeNode T)
 			 
 	  case SuccNode:
 	  case PredNode:
-	  
-	  if(NodeName(Child(T,1)) == IntegerNode) {
-		  return (TypeInteger);
-	  } else if(NodeName(Child(T,1)) == CharNode) {
-		  return (TypeChar);
-	  } else if(NodeName(Child(T,1)) == IdentifierNode) {
-		  /*
-		  printf("\n\nIn Succ/Pred's Identifier section\n\n");
-		  */
-		  Expression(Child(T,1));
-		  /*
-		  printf("\n\nAfter expression In Succ/Pred's Identifier section\n\n");
-		  */
-		  return Decoration(Decoration(Child(T,1))); /*Return the 'type' treeNode connected with the enum or int or char.*/
-	  }
+	  	Type1 = Expression(Child(T,1));
+		Decorate(T,Type1);
+	  	return Type1;
 	  
 	  case OrdNode:
 	    Expression(Child(T,1));
+		Decorate(T,TypeInteger);
 	  	return (TypeInteger);
 	  
 	  case ChrNode:
@@ -510,6 +495,7 @@ UserType Expression (TreeNode T)
           printf ("ARGUMENTS OF chr MUST BE TYPE INTEGER\n");
           printf ("\n");
        }
+	   Decorate(T,TypeChar);
 	   return TypeChar;
 
 
@@ -564,6 +550,10 @@ void ProcessNode (TreeNode T)
          */
 		 CloseScope();
          break;
+		
+         case StringNode : 
+		 	
+            break;
 		
          case LoopNode : 
             OpenScope();
@@ -888,18 +878,36 @@ void ProcessNode (TreeNode T)
 	          printf ("Identifiers in Read should be of type var!\n");
 	          printf ("\n");
 		 }
+ 	 	Temp = Lookup(FOR_CTXT,T); 		
+ 			/*   the read variable must be different from all enclosing for loops' control variables. */
+ 			while(NodeName(Temp) != ProgramNode) {
+ 				if (NodeName(Child(Child(Temp,1),1)) == NodeName(Child(Child(T,Kid),1))) {
+ 	                ErrorHeader(T);
+ 	                printf ("Read variables must have different names than enclosing for loops' loop control variables!\n");
+ 				}
+ 				Temp = Decoration(Temp); /*  Get parent enclosing for loop */
+ 			}
  		}
 	           break;
 
       case OutputNode :
-         for (Kid = 1; Kid <= NKids(T); Kid++)
+	  
+         for (Kid = 1; Kid <= NKids(T); Kid++) {
+			 if(NodeName(Child(T,Kid)) != StringNode) {
+			Expression (Child(T,Kid));
+		}
+			/*
             if (Expression (Child(T,Kid)) != TypeInteger && Expression (Child(T,Kid)) != TypeChar)
             {
                ErrorHeader(T);
                printf ("OUTPUT EXPRESSION MUST BE TYPE INTEGER or CHAR\n");
                printf ("\n");
             }
-         break;
+			*/
+         }
+            
+			
+		 break;
 
 
       case IfNode :
