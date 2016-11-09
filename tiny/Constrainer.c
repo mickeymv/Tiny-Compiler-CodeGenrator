@@ -396,11 +396,11 @@ UserType Expression (TreeNode T)
       else  
          Type2 = TypeInteger;
 
-      if (Type1 != TypeInteger || Type2 != TypeInteger)
+      if (Type1 == TypeChar || Type2 == TypeChar)
       {
          ErrorHeader(Child(T,1));
          printf ("ARGUMENTS OF '+' ");
-         printf ("MUST BE OF TYPE INTEGER!\n");
+         printf ("Cannot be of TYPE char!\n");
          printf ("\n");
       }
       return (TypeInteger);
