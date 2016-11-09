@@ -584,8 +584,8 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 
 
 			case OutputNode: 
-			                for (Kid = 1; Kid <= NKids(T); Kid++) {
-								if(NodeName(Child(T, Kid)) == IdentifierNode && NodeName(Decoration(Child(Decoration(Child(T, Kid)), 1))) != LitNode)
+			   for (Kid = 1; Kid <= NKids(T); Kid++) {
+					if(NodeName(Child(T, Kid)) == IdentifierNode && NodeName(Decoration(Child(Decoration(Child(T, Kid)), 1))) != LitNode)
 											                        {
 											                                Expression (Child(T,Kid), CurrLabel);
 
@@ -602,6 +602,11 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 											                                CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
 											                                DecrementFrameSize();
 											                                CurrLabel = NoLabel;
+											                        } else if (NodeName(Child(T, Kid)) == ChrNode) {
+											                        	Expression (Child(T,Kid), CurrLabel);
+																		CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
+										                                DecrementFrameSize();
+										                                CurrLabel = NoLabel;
 											                        }
 			                        
 			                        else if(NodeName(Child(T, Kid)) == StringNode){
