@@ -297,7 +297,8 @@ int NKids (TreeNode T)
 void Expression (TreeNode T, Clabel CurrLabel)
 {
    TreeNode Decl;
-   int Kid, Mode, Value, CharToInt;
+   int Kid, Mode, Value;
+   unsigned int CharToInt;
    Clabel Label1;
 
    if (TraceSpecified)
@@ -448,11 +449,12 @@ void Expression (TreeNode T, Clabel CurrLabel)
 		 
       case CharNode :
    	  	IncrementFrameSize();
+		CodeGen1 (LITOP, MakeStringOf(Character(NodeName(Child(T, 1)), 2)), CurrLabel);
 		/*
-		printf("\n\nThe char is %c !\n\n", Character(NodeName (Child(T,1)), 2));
-		*/
-		CharToInt = Character(NodeName (Child(T,1)),2) - '0'; /*Convert to int*/
-            CodeGen1 (LITOP, MakeStringOf(CharToInt), CurrLabel);
+		CharToInt = (unsigned int) Character(NodeName (Child(T,1)),2); /*Convert to unsigned int*/
+		/*
+			CodeGen1 (LITOP, MakeStringOf(CharToInt), CurrLabel);
+			*/
             break;	 
 		 
          case StringNode :
@@ -578,67 +580,91 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
             return (NoLabel);	 
 
 
-      case OutputNode :
-	  /*
-	  printf("\n\nProcessing first child of output node\n\n");
-        */
-		Expression (Child(T,1), CurrLabel);
-		if(NodeName(Child(T,1)) == IdentifierNode) {
-		/*check type*/
-			/*
-			printf("\nPrinting identifier for first child of output!\n");
-  			*/
-			VariableNode = Decoration(Child(Decoration(Child(T,1)),1));
-			if (NodeName(VariableNode) == ConstNode) {
-				CodeGen1 (SOSOP, OSOUTPUT, NoLabel);
-			} else {
-			Type = NodeName(Child(Child(VariableNode, NKids(VariableNode)),1));
-			if (Type == IntegerTNode) {
-        	CodeGen1 (SOSOP, OSOUTPUT, NoLabel);
-			} else if (Type == CharTNode) {
-			CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
-			} 
-			}
-		} else if (NodeName(Child(T,1)) == StringNode) {
-			CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
-		} else { /*Output the result of expression!*/
-			/*
-			printf("\nPrinting result of expression for first child of output!\n");
-			*/
-			CodeGen1 (SOSOP, OSOUTPUT, NoLabel);
-		}
-         DecrementFrameSize();
-         for (Kid = 2; Kid <= NKids(T); Kid++)
-          {
-			  /*
-			  printf("\n\nProcessing %d child of output node\n\n", Kid);
-            */
-			Expression (Child(T,Kid), NoLabel);
-			if(NodeName(Child(T,Kid)) == IdentifierNode) {
-		/*check type*/
-  				VariableNode = Decoration(Child(Decoration(Child(T,Kid)),1));
-				if (NodeName(VariableNode) == ConstNode) {
-					CodeGen1 (SOSOP, OSOUTPUT, NoLabel);
-				} else {
-				Type = NodeName(Child(Child(VariableNode, NKids(VariableNode)),1));
-				if (Type == IntegerTNode) {
-	        	CodeGen1 (SOSOP, OSOUTPUT, NoLabel);
-				} else if (Type == CharTNode) {
-				CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
-				} 
-				}
-			} else if (NodeName(Child(T,Kid)) == StringNode) {
-				CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
-			} else { /*Output the result of expression!*/
-				/*
-				printf("\nPrinting result of expression for %d child of output!\n",Kid);
-				*/
-				CodeGen1 (SOSOP, OSOUTPUT, NoLabel);
-			}
-            DecrementFrameSize();
-         }
-         CodeGen1 (SOSOP, OSOUTPUTL, NoLabel);
-         return (NoLabel);
+			case OutputNode: 
+			                for (Kid = 1; Kid <= NKids(T); Kid++) {
+								if(NodeName(Child(T, Kid)) == IdentifierNode && NodeName(Decoration(Child(Decoration(Child(T, Kid)), 1))) != LitNode)
+											                        {
+											                                Expression (Child(T,Kid), CurrLabel);
+
+											                                if(Decoration(Decoration(Child(Decoration(Child(Decoration(Child(T, Kid)), 1)), NKids(Decoration(Child(Decoration(Child(T, Kid)), 1)))))) == Child (Child (RootOfTree(1), 2), 3))
+											                                        CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
+											                                else
+											                                        CodeGen1 (SOSOP, OSOUTPUT, NoLabel);
+											                                DecrementFrameSize();
+											                                CurrLabel = NoLabel;
+											                        }
+											                        else if(Decoration(Child(T, Kid)) == Child (Child (RootOfTree(1), 2), 3) || NodeName(Child(T, Kid)) == CharNode)
+											                        {
+											                                Expression (Child(T,Kid), CurrLabel);
+											                                CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
+											                                DecrementFrameSize();
+											                                CurrLabel = NoLabel;
+											                        }
+			                        
+			                        else if(NodeName(Child(T, Kid)) == StringNode){
+										/*Iterate through every character for string*/
+			                                Num = 2; /*Ignore first " quote*/
+			                                while(Character(NodeName(Child(Child(T, Kid), 1)), Num) != '"'){
+			                                    if(Character(NodeName(Child(Child(T, Kid), 1)), Num) == '\\'){
+			                                            Num++;
+			                                            switch(Character(NodeName(Child(Child(T, Kid), 1)), Num)){
+			                                                    case 'a':   
+																	CodeGen1 (LITOP, MakeStringOf('\a'), CurrLabel); 
+																	break;
+			                                                    case 'b':   
+																	CodeGen1 (LITOP, MakeStringOf('\b'), CurrLabel); 
+																	break;
+			                                                    case 'f':   
+																	CodeGen1 (LITOP, MakeStringOf('\f'), CurrLabel); 
+																	break;
+			                                                    case 'n':   
+																	CodeGen1 (LITOP, MakeStringOf('\n'), CurrLabel); 
+																	break;
+			                                                    case 'r':   
+																	CodeGen1 (LITOP, MakeStringOf('\r'), CurrLabel); 
+																	break;
+			                                                    case 't':   
+																	CodeGen1 (LITOP, MakeStringOf('\t'), CurrLabel); 
+																	break;
+			                                                    case 'v':   
+																	CodeGen1 (LITOP, MakeStringOf('\v'), CurrLabel); 
+																	break;
+			                                                    case '\\':  
+																	CodeGen1 (LITOP, MakeStringOf('\\'), CurrLabel); 
+																	break;
+			                                                    case '\'':  
+																	CodeGen1 (LITOP, MakeStringOf('\''), CurrLabel); 
+																	break;
+			                                                    case '"':   
+																	CodeGen1 (LITOP, MakeStringOf('"'), CurrLabel); 
+																	break;
+			                                                    case '?':   
+																	CodeGen1 (LITOP, MakeStringOf('?'), CurrLabel); 
+																	break;
+			                                                    default:   
+																	CodeGen1 (LITOP, MakeStringOf('?'), CurrLabel); 
+																	break;
+			                                            }
+			                                    }
+			                                    else
+			                                            CodeGen1 (LITOP, MakeStringOf(Character(NodeName(Child(Child(T, Kid), 1)), Num)), CurrLabel);
+			                                    IncrementFrameSize();
+			                                    CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
+			                                    DecrementFrameSize();
+			                                    Num++;
+			                                    CurrLabel = NoLabel;
+			                                }
+			                        }
+			                        else
+			                        {
+			                                Expression (Child(T,Kid), CurrLabel);
+			                                CodeGen1 (SOSOP, OSOUTPUT, NoLabel);
+			                                DecrementFrameSize();
+			                                CurrLabel = NoLabel;
+			                        }
+								}
+			                CodeGen1 (SOSOP, OSOUTPUTL, NoLabel);
+			                return (NoLabel);
 
       case ReadNode :
 			/*check type*/

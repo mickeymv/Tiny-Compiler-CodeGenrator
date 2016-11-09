@@ -38,8 +38,12 @@ Statement  -> Name ASSIGNMENT Expression          	=> "assign"
 Case_Clause	->	Case_Literal ':' Statement			=>	"case_clause"
 			->										=>	"<null>";
 
-Case_Literal ->	Integer RANGE Integer		=>	".."
-			->	Integer	;
+Case_Literal ->	CaseT RANGE CaseT		=>	".."
+			->	CaseT	;
+			
+CaseT		-> Name
+			-> Character
+			-> Integer;
 		   
 Otherwise	-> ';' OTHERWISE Statement					=> "otherwise"
 			-> ';';
