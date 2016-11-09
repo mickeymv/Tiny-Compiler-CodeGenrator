@@ -85,13 +85,9 @@ Primary    -> EOFFN						=> "eof"
 		   -> CHR '(' Expression ')'	=> "chr"
            -> '(' Expression ')';
 		   
-Intrins		-> SUCC '(' IntrinsP ')'	=> "succ"
-			-> PRED '(' IntrinsP ')'	=> "pred"
-			-> ORD '(' IntrinsP ')'		=> "ord";
-			
-IntrinsP	-> Name
-			-> Integer
-			-> Character;
+Intrins		-> SUCC '(' Expression ')'	=> "succ"
+			-> PRED '(' Expression ')'	=> "pred"
+			-> ORD '(' Expression ')'		=> "ord";
 
 Character  -> CHARLIT					=> "<char>"; 		   
 		   

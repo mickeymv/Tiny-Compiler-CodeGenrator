@@ -451,6 +451,9 @@ UserType Expression (TreeNode T)
       case IntegerNode : 
          return (TypeInteger);
 		 
+      case CharNode : 
+            return (TypeChar);	 
+		 
          case StringNode : 
 		 TypeString = T;
             return (TypeString);	 

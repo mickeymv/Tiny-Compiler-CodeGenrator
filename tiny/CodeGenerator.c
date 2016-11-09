@@ -297,7 +297,7 @@ int NKids (TreeNode T)
 void Expression (TreeNode T, Clabel CurrLabel)
 {
    TreeNode Decl;
-   int Kid, Mode, Value;
+   int Kid, Mode, Value, CharToInt;
    Clabel Label1;
 
    if (TraceSpecified)
@@ -445,6 +445,15 @@ void Expression (TreeNode T, Clabel CurrLabel)
 	  	IncrementFrameSize();
          CodeGen1 (LITOP, NodeName (Child(T,1)), CurrLabel);
          break;
+		 
+      case CharNode :
+   	  	IncrementFrameSize();
+		/*
+		printf("\n\nThe char is %c !\n\n", Character(NodeName (Child(T,1)), 2));
+		*/
+		CharToInt = Character(NodeName (Child(T,1)),2) - '0'; /*Convert to int*/
+            CodeGen1 (LITOP, MakeStringOf(CharToInt), CurrLabel);
+            break;	 
 		 
          case StringNode :
    	  	IncrementFrameSize();
