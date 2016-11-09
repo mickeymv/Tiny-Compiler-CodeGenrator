@@ -266,13 +266,15 @@ UserType Expression (TreeNode T)
          case GTENode :    
             Type1 = Expression (Child(T,1));
             Type2 = Expression (Child(T,2));
-
+			/*TODO: if type is not integer, coerce into int*/
+			/*
             if (Type1 != Type2 || Type2 != TypeInteger)
             {
                ErrorHeader(Child(T,1));
                printf ("ARGUMENTS OF '>=' MUST BE OF TYPE INTEGER!\n");
                printf ("\n");
             }
+			*/
             return (TypeBoolean);
 			
 	        case LTNode :    
@@ -501,7 +503,13 @@ UserType Expression (TreeNode T)
 	  	return (TypeInteger);
 	  
 	  case ChrNode:
-	   Expression(Child(T,1));
+	   Type1 = Expression(Child(T,1));
+       if (Type1 != TypeInteger)
+       {
+          ErrorHeader(Child(T,1));
+          printf ("ARGUMENTS OF chr MUST BE TYPE INTEGER\n");
+          printf ("\n");
+       }
 	   return TypeChar;
 
 
@@ -582,14 +590,14 @@ void ProcessNode (TreeNode T)
 			
 		case CaseNode : 
         Type1 = Expression (Child(T,1));
-
+		/*
         if (Type1 != TypeInteger)			/*  TODO: Make sure to constrain case literals to be same type as expression in future. */
-        {
+        /*{
            ErrorHeader(T);
            printf ("Case's Expression should be of type integer!\n");
            printf ("\n");
         }
-		
+		*/
         for (Kid = 2; Kid < NKids(T); Kid++)
            ProcessNode (Child(Child(T,Kid),2)); /*  Process statements of case_clauses */
 		
@@ -805,20 +813,27 @@ void ProcessNode (TreeNode T)
          }
 		 
 		Decorate(LeftHandId, Lookup(NodeName(Child(LeftHandId,1)),LeftHandId));
+		 /* TODO: why was this added? there won't be any entry for a integer literal in DT. this gave false error in pr3.e01. AND integers cant be a type!
 		if (NodeName(RightHandId) == IntegerNode) { /*In some cases it could be other functions like not, succ etc.*/
    		 /*
    		 printf("\nMode of rightHandId is %d\n",ModeOf(RightHandId, IdInUse));
    		 */
+		/*
    		 if (ModeOf(RightHandId, IdInUse) == TypeNode) {
                 ErrorHeader(Child(T,1));
                 printf ("Right hand side of assignment cannot be a type!\n");
                 printf ("\n");
    		 }
+		*/
 			/*
 			printf("\n\nInside integerNode on the rightSide of assign!\n\n");
 		 */
+		 /* TODO: why was this added? there won't be any entry for a integer literal in DT. this gave false error in pr3.e01.
 			Decorate(RightHandId, Lookup(NodeName(Child(RightHandId,1)),RightHandId));
+		*/
+		 /*
 		}
+		*/
  	 	Temp = Lookup(FOR_CTXT,T); 		
  			/*   this variable must be different from all enclosing for loops' control variables. */
  			while(NodeName(Temp) != ProgramNode) {

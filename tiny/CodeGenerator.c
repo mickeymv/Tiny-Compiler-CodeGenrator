@@ -757,6 +757,12 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			CodeGen1 (LITOP, NodeName (Child(Child(Child(T,Kid),1),1)), NoLabel); /*  Put the case literal on top of the stack */
 			IncrementFrameSize();
 			CodeGen1 (BOPOP, BEQ, NoLabel);
+           } else if (NodeName(Child(Child(T,Kid),1)) == IdentifierNode) { /*  There is only one case literal, example "1:{S}" */
+   			CodeGen0 (DUPOP, NextLabel);
+   			IncrementFrameSize();
+			Expression (Child(Child(T,Kid),1), NoLabel); /*  Put the case literal on top of the stack */
+			IncrementFrameSize();
+			CodeGen1 (BOPOP, BEQ, NoLabel);
            } else if (NodeName(Child(Child(T,Kid),1)) == RangeNode) {	/*  There is range case literal, example "1..5:{S}" */
   			CodeGen0 (DUPOP, NextLabel);
   			IncrementFrameSize();
