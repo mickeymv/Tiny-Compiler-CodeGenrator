@@ -471,14 +471,14 @@ void Expression (TreeNode T, Clabel CurrLabel)
 			CodeGen0 (LIMITOP,  NoLabel);
 	  	}
 	  	break;
-		/*
    	  case OrdNode:
-   	  	return (TypeInteger);
+	  	Expression(Child(T,1), CurrLabel);
+   	  	break;
 	  
    	  case ChrNode:
-   	   Expression(Child(T,1));
-   	   return TypeChar;
-*/
+	  	Expression(Child(T,1), CurrLabel);
+   	   break;
+	   
       default :
          ReportTreeErrorAt(T);
          printf ("<<< CODE GENERATOR >>> : UNKNOWN NODE NAME ");

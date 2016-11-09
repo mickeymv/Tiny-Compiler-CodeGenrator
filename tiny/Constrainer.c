@@ -493,6 +493,7 @@ UserType Expression (TreeNode T)
 	  }
 	  
 	  case OrdNode:
+	    Expression(Child(T,1));
 	  	return (TypeInteger);
 	  
 	  case ChrNode:
