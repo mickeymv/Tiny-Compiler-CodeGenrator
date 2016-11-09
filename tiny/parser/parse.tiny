@@ -81,7 +81,17 @@ Primary    -> EOFFN						=> "eof"
            -> Name
            -> INTEGER_NUM				=> "<integer>"
 		   -> CHARLIT					=> "<char>"
+		   -> Intrins
+		   -> CHR '(' Expression ')'	=> "chr"
            -> '(' Expression ')';
+		   
+Intrins		-> SUCC '(' IntrinsP ')'	=> "succ"
+			-> PRED '(' IntrinsP ')'	=> "pred"
+			-> ORD '(' IntrinsP ')'		=> "ord";
+			
+IntrinsP	-> Name
+			-> Integer
+			-> Character;
 
 Character  -> CHARLIT					=> "<char>"; 		   
 		   

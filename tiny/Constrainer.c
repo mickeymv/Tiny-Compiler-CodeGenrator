@@ -65,8 +65,12 @@
 #define ConstsNode 49
 #define ConstNode 50
 #define StringNode 51
+#define SuccNode 52
+#define PredNode 53
+#define OrdNode 54
+#define ChrNode 55
 
-#define NumberOfNodes  51
+#define NumberOfNodes  55
 
 #define IdInDeclaration  0
 #define IdInUse  1
@@ -88,7 +92,8 @@ char *node[] = { "program", "types", "type", "dclns",
 				"eof", "repeat", "swap", "<loop_ctxt>", "loop",
 				"exit", "upto", "<for_ctxt>", "downto", "case",
 				"case_clause", "otherwise", "lit", "char",
-				"<char>", "consts", "const", "<string>"
+				"<char>", "consts", "const", "<string>", "succ",
+				"pred", "ord", "chr"
                 };
 
 
@@ -465,6 +470,34 @@ UserType Expression (TreeNode T)
             Decorate (T, Declaration);
             return (Decoration(Declaration));
          }
+		 else /*TODO: fallback, should not reach here!*/
+			 return (TypeInteger);
+
+			 
+	  case SuccNode:
+	  case PredNode:
+	  
+	  if(NodeName(Child(T,1)) == IntegerNode) {
+		  return (TypeInteger);
+	  } else if(NodeName(Child(T,1)) == CharNode) {
+		  return (TypeChar);
+	  } else if(NodeName(Child(T,1)) == IdentifierNode) {
+		  /*
+		  printf("\n\nIn Succ/Pred's Identifier section\n\n");
+		  */
+		  Expression(Child(T,1));
+		  /*
+		  printf("\n\nAfter expression In Succ/Pred's Identifier section\n\n");
+		  */
+		  return Decoration(Decoration(Child(T,1))); /*Return the 'type' treeNode connected with the enum or int or char.*/
+	  }
+	  
+	  case OrdNode:
+	  	return (TypeInteger);
+	  
+	  case ChrNode:
+	   Expression(Child(T,1));
+	   return TypeChar;
 
 
       default :
@@ -513,8 +546,10 @@ void ProcessNode (TreeNode T)
 
          for (Kid = 2; Kid <= NKids(T)-1; Kid++)
             ProcessNode (Child(T,Kid));
+		 /*
 		 PrintTree(stdout,RootOfTree(1));
-         CloseScope();
+         */
+		 CloseScope();
          break;
 		
          case LoopNode : 
@@ -740,9 +775,12 @@ void ProcessNode (TreeNode T)
 
 
       case AssignNode :
+	  	
          Type1 = Expression (Child(T,1));
          Type2 = Expression (Child(T,2));
-		 
+		 /*
+		 printf("\n\nIn AssignNode, the types are %d and %d \n\n", NodeName(Type1), NodeName(Type2));
+		 */
 		 LeftHandId = Child(T,1);
 		 RightHandId = Child(T,2);
 		 /*
@@ -751,14 +789,6 @@ void ProcessNode (TreeNode T)
 		 if (ModeOf(LeftHandId, IdInUse) != VarNode) {
              ErrorHeader(Child(T,1));
              printf ("Left hand side of assignment should be a var!\n");
-             printf ("\n");
-		 }
-		 /*
-		 printf("\nMode of rightHandId is %d\n",ModeOf(RightHandId, IdInUse));
-		 */
-		 if (ModeOf(RightHandId, IdInUse) == TypeNode) {
-             ErrorHeader(Child(T,1));
-             printf ("Right hand side of assignment cannot be a type!\n");
              printf ("\n");
 		 }
 
@@ -770,8 +800,20 @@ void ProcessNode (TreeNode T)
          }
 		 
 		Decorate(LeftHandId, Lookup(NodeName(Child(LeftHandId,1)),LeftHandId));
-		Decorate(RightHandId, Lookup(NodeName(Child(RightHandId,1)),RightHandId));
-		 
+		if (NodeName(RightHandId) == IntegerNode) { /*In some cases it could be other functions like not, succ etc.*/
+   		 /*
+   		 printf("\nMode of rightHandId is %d\n",ModeOf(RightHandId, IdInUse));
+   		 */
+   		 if (ModeOf(RightHandId, IdInUse) == TypeNode) {
+                ErrorHeader(Child(T,1));
+                printf ("Right hand side of assignment cannot be a type!\n");
+                printf ("\n");
+   		 }
+			/*
+			printf("\n\nInside integerNode on the rightSide of assign!\n\n");
+		 */
+			Decorate(RightHandId, Lookup(NodeName(Child(RightHandId,1)),RightHandId));
+		}
  	 	Temp = Lookup(FOR_CTXT,T); 		
  			/*   this variable must be different from all enclosing for loops' control variables. */
  			while(NodeName(Temp) != ProgramNode) {

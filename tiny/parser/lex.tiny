@@ -55,6 +55,10 @@ STR     \"[^\"]+\"
 "loop" 		{ return rule(LOOP); }
 "pool" 		{ return rule(POOL); }
 "exit" 		{ return rule(EXIT); }
+"succ" 		{ return rule(SUCC); }
+"pred" 		{ return rule(PRED); }
+"ord" 		{ return rule(ORD); }
+"chr" 		{ return rule(CHR); }
 "for" 		{ return rule(FOR); }
 "to" 		{ return rule(TO); }
 "downto" 	{ return rule(DOWNTO); }

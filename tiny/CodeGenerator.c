@@ -123,10 +123,14 @@
 #define ConstNode 96
 #define VarNode 97
 #define StringNode 98
+#define SuccNode 99
+#define PredNode 100
+#define OrdNode 101
+#define ChrNode 102
 
 
 
-#define    NumberOfNodes 97
+#define    NumberOfNodes 102
 typedef int Mode;
 
 FILE *CodeFile;
@@ -152,21 +156,26 @@ char *node_name[] =
      "<null>","<=","+","-","read","<integer>","<identifier>","**","not","or","*",
  	"/","and","mod","=","<>",">=","<",">","true","false","eof","repeat","swap","loop",
 	"exit", "upto", "downto", "case", "..", "case_clause", "otherwise", "lit", "char",
-	"<char>", "consts", "const", "var", "<string>"};
+	"<char>", "consts", "const", "var", "<string>", "succ", "pred", "ord", "chr"};
 
 
 void CodeGenerate(int argc, char *argv[])
 {
    int NumberTrees;
-printf("\nIn CodeGenerate!\n");
+   /*
+   printf("\nIn CodeGenerate!\n");
+   */
    InitializeCodeGenerator(argc,argv);
    Tree_File = Open_File("_TREE", "r"); 
    NumberTrees = Read_Trees();
    fclose (Tree_File);                     
+   /*
    printf("\nBefore ProcessNode in CodeGenerate!\n");
-
+*/
    HaltLabel = ProcessNode (RootOfTree(1), NoLabel);
+   /*
    printf("\nAfter ProcessNode in CodeGenerate!\n");
+   */
    CodeGen0 (HALTOP, HaltLabel); 
 
    CodeFile = Open_File (CodeFileName, "w");
@@ -446,7 +455,30 @@ void Expression (TreeNode T, Clabel CurrLabel)
          Reference (T,RightMode,CurrLabel);
          break;
 
-
+   	  case SuccNode:
+   	  case PredNode:
+	  	Expression(Child(T,1), CurrLabel);
+		if (NodeName(T) == SuccNode) {
+			CodeGen1 (UOPOP, USUCC, NoLabel);
+		} else {
+			CodeGen1 (UOPOP, UPRED, NoLabel);
+		}
+	  	if (NKids(Decoration(Decoration(Child(T,1)))) == 2) {
+			IncrementFrameSize();
+	  		CodeGen1 (LITOP, MakeStringOf(0), NoLabel);
+			IncrementFrameSize();
+			CodeGen1 (LITOP, MakeStringOf(NKids(Child(Decoration(Decoration(Child(T,1))),2))), NoLabel);
+			CodeGen0 (LIMITOP,  NoLabel);
+	  	}
+	  	break;
+		/*
+   	  case OrdNode:
+   	  	return (TypeInteger);
+	  
+   	  case ChrNode:
+   	   Expression(Child(T,1));
+   	   return TypeChar;
+*/
       default :
          ReportTreeErrorAt(T);
          printf ("<<< CODE GENERATOR >>> : UNKNOWN NODE NAME ");
@@ -476,6 +508,10 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
    switch (NodeName(T))
    {
       case ProgramNode :
+	  /*
+	  printf("\nIn Program Node!\n");
+	  */
+	  PrintAllStrings(stdout);
          CurrLabel = ProcessNode (Child(T,2),CurrLabel);
 		 for(Kid=3;Kid<NKids(T);Kid++) {
          CurrLabel = ProcessNode (Child(T,Kid),CurrLabel);		 
@@ -497,6 +533,7 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
       case DclnsNode :
 	   for (Kid = 1; Kid <= NKids(T); Kid++)
            CurrLabel = ProcessNode (Child(T,Kid), CurrLabel);
+  PrintTree(stdout,RootOfTree(1));	
          if (NKids(T) > 0)
             return (NoLabel);
          else
@@ -533,11 +570,16 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 
 
       case OutputNode :
-        Expression (Child(T,1), CurrLabel);
+	  /*
+	  printf("\n\nProcessing first child of output node\n\n");
+        */
+		Expression (Child(T,1), CurrLabel);
 		if(NodeName(Child(T,1)) == IdentifierNode) {
 		/*check type*/
+			/*
 			printf("\nPrinting identifier for first child of output!\n");
-  			VariableNode = Decoration(Child(Decoration(Child(T,1)),1));
+  			*/
+			VariableNode = Decoration(Child(Decoration(Child(T,1)),1));
 			if (NodeName(VariableNode) == ConstNode) {
 				CodeGen1 (SOSOP, OSOUTPUT, NoLabel);
 			} else {
@@ -551,12 +593,18 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 		} else if (NodeName(Child(T,1)) == StringNode) {
 			CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
 		} else { /*Output the result of expression!*/
+			/*
+			printf("\nPrinting result of expression for first child of output!\n");
+			*/
 			CodeGen1 (SOSOP, OSOUTPUT, NoLabel);
 		}
          DecrementFrameSize();
          for (Kid = 2; Kid <= NKids(T); Kid++)
           {
-            Expression (Child(T,Kid), NoLabel);
+			  /*
+			  printf("\n\nProcessing %d child of output node\n\n", Kid);
+            */
+			Expression (Child(T,Kid), NoLabel);
 			if(NodeName(Child(T,Kid)) == IdentifierNode) {
 		/*check type*/
   				VariableNode = Decoration(Child(Decoration(Child(T,Kid)),1));
@@ -573,6 +621,9 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			} else if (NodeName(Child(T,Kid)) == StringNode) {
 				CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
 			} else { /*Output the result of expression!*/
+				/*
+				printf("\nPrinting result of expression for %d child of output!\n",Kid);
+				*/
 				CodeGen1 (SOSOP, OSOUTPUT, NoLabel);
 			}
             DecrementFrameSize();
