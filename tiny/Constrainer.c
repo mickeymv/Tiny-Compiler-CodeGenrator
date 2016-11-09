@@ -627,7 +627,7 @@ void ProcessNode (TreeNode T)
 		   printf("\n\n%d Expression is of type %d\n\n",Kid, Type1);
 		   */
 		   if(Type1 != Type2) {
-			ErrorHeader(T);
+			ErrorHeader(Child(Child(T,Kid),1));
 			printf ("Case literals should be the same type as the case expression.\n");
 		   }
 	   }
@@ -645,7 +645,7 @@ void ProcessNode (TreeNode T)
 			}
 			ProcessNode (Child(Child(T,NKids(T)),2));	/*  Process statement of last case_clause (when there is no otherwise clause defined) */
  		   if(Type1 != Type2) {
- 			ErrorHeader(T);
+ 			ErrorHeader(Child(Child(T,Kid),1));
  			printf ("Case literals should be the same type as the case expression.\n");
  		   }
 		} else if (NodeName(Child(T,NKids(T))) == OtherwiseNode) {
