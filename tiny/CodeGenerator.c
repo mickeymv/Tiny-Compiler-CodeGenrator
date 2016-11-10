@@ -1010,9 +1010,9 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 		 /*
 		printf("\n\n2Const id!\n\n");
 		*/
-		/*
-		Decorate(Child(T,1), Decoration(Lookup(NodeName(Child(Child(T,2),1)),T)));
-		*/
+		
+		Decorate(Child(T,1), Decoration(Decoration(Child(Child,2))));
+		
 		 /*
 		printf("\n\n3Const id!\n\n");
 		*/
