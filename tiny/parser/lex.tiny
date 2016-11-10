@@ -19,7 +19,7 @@ IDENT	[_a-zA-Z][_a-zA-Z0-9]*
 INT	[0-9]+
 WHITE   [ \t\v\f]*
 LIT     '[^\']'
-STR     \"[^\"]+\"
+STR     \"[^\"]*\"
 %%
 
 {WHITE}    	{ column += yyleng; }
