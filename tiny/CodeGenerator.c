@@ -587,19 +587,36 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 
 			case OutputNode: 
 			   for (Kid = 1; Kid <= NKids(T); Kid++) {
+				   /*
+				   printf("\n\noutput\n\n");
+					*/
 					if(NodeName(Child(T, Kid)) == IdentifierNode && NodeName(Decoration(Child(Decoration(Child(T, Kid)), 1))) != LitNode)
 											                        {
 											                                Expression (Child(T,Kid), CurrLabel);
 
-											                                if(Decoration(Decoration(Child(Decoration(Child(Decoration(Child(T, Kid)), 1)), NKids(Decoration(Child(Decoration(Child(T, Kid)), 1)))))) == Child (Child (RootOfTree(1), 2), 3))
-											                                        CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
+											                                if((Decoration(Child(Decoration(Child(Decoration(Child(T,Kid)),1)),2)) == Child (Child (RootOfTree(1), 2), 3)) || Decoration(Decoration(Child(Decoration(Child(Decoration(Child(T, Kid)), 1)), NKids(Decoration(Child(Decoration(Child(T, Kid)), 1)))))) == Child (Child (RootOfTree(1), 2), 3)) 
+																			{ 
+																				/*
+																				printf("\n\noutput1\n\n");
+											                                    */
+																				    CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
+																				}
 											                                else
-											                                        CodeGen1 (SOSOP, OSOUTPUT, NoLabel);
+																			{ 
+																				/*
+																				printf("\n\noutput2\n\n");
+											                                     */
+																				    CodeGen1 (SOSOP, OSOUTPUT, NoLabel);
+																				}
 											                                DecrementFrameSize();
 											                                CurrLabel = NoLabel;
 											                        }
 											                        else if(Decoration(Child(T, Kid)) == Child (Child (RootOfTree(1), 2), 3) || NodeName(Child(T, Kid)) == CharNode)
 											                        {
+																		/* example char literal nodes*/
+																		/*
+																		printf("\n\noutput3\n\n");
+																		*/
 											                                Expression (Child(T,Kid), CurrLabel);
 											                                CodeGen1 (SOSOP, OSOUTPUTC, NoLabel);
 											                                DecrementFrameSize();
@@ -670,6 +687,10 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			                        }
 			                        else
 			                        {
+										/* example integer literal nodes*/
+										/*
+										printf("\n\noutput4\n\n");
+										*/
 			                                Expression (Child(T,Kid), CurrLabel);
 			                                CodeGen1 (SOSOP, OSOUTPUT, NoLabel);
 			                                DecrementFrameSize();
@@ -970,10 +991,13 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 		 Decorate(Child(T,2), Decoration(Child(T,1))); /*Decorate second child with type*/
 		 Decorate(Child(T,1), NodeName(Child(Child(T,2),1)));
  	 } else if(NodeName(Child(T,2)) == CharNode) {
-		 /*
+		 
 		 printf("\n\nConst char!\n\n");
- 		 */
+ 		 
 		 Decorate(Child(T,2), Decoration(Child(T,1))); /*Decorate second child with type*/
+		 /*
+		 printf("\n\nDecorating id of const char with %c\n\n", Character(NodeName(Child(Child(T,2),1)),2));
+		 */
 		 Decorate(Child(T,1), MakeStringOf(Character(NodeName(Child(Child(T,2),1)),2)));
  	 } else if(NodeName(Child(T,2)) == IdentifierNode) {
 		 /*
