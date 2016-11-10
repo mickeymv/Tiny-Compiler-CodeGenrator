@@ -771,6 +771,15 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			CodeGen1 (LITOP, NodeName (Child(Child(Child(T,Kid),1),1)), NoLabel); /*  Put the case literal on top of the stack */
 			IncrementFrameSize();
 			CodeGen1 (BOPOP, BEQ, NoLabel);
+           } else if (NodeName(Child(Child(T,Kid),1)) == CharNode) { /*  There is only one case literal, example "1:{S}" */
+		   /*
+			printf("\n\nin %d case label \n\n", Kid-1);
+			*/
+			CodeGen0 (DUPOP, NextLabel);
+   			IncrementFrameSize();
+			CodeGen1 (LITOP, MakeStringOf(Character(NodeName(Child(Child(Child(T,Kid),1),1)),2)), NoLabel); /*  Put the case literal on top of the stack */
+			IncrementFrameSize();
+			CodeGen1 (BOPOP, BEQ, NoLabel);
            } else if (NodeName(Child(Child(T,Kid),1)) == IdentifierNode) { /*  There is only one case literal, example "1:{S}" */
 		   /*
 			printf("\n\nin %d case label \n\n", Kid-1);
@@ -825,6 +834,15 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			CodeGen0 (DUPOP, NextLabel);
    			IncrementFrameSize();
 			CodeGen1 (LITOP, NodeName (Child(Child(Child(T,NKids(T)),1),1)), NoLabel); /*  Put the case literal on top of the stack */
+			IncrementFrameSize();
+			CodeGen1 (BOPOP, BEQ, NoLabel);
+           } else if (NodeName(Child(Child(T,Kid),1)) == CharNode) { /*  There is only one case literal, example "1:{S}" */
+		   /*
+			printf("\n\nin %d case label \n\n", Kid-1);
+			*/
+			CodeGen0 (DUPOP, NextLabel);
+   			IncrementFrameSize();
+			CodeGen1 (LITOP, MakeStringOf(Character(NodeName(Child(Child(Child(T,Kid),1),1)),2)), NoLabel); /*  Put the case literal on top of the stack */
 			IncrementFrameSize();
 			CodeGen1 (BOPOP, BEQ, NoLabel);
            } else if (NodeName(Child(Child(T,Kid),1)) == IdentifierNode) { /*  There is only one case literal, example "1:{S}" */
