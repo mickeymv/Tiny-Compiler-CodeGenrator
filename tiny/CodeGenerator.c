@@ -129,7 +129,6 @@
 #define ChrNode 102
 
 
-
 #define    NumberOfNodes 102
 typedef int Mode;
 
@@ -277,6 +276,9 @@ void Reference(TreeNode T, Mode M, Clabel L)
       IdMode = NodeName(Decoration(Child(Decoration(T),1)));
     		 if (IdMode == ConstNode || IdMode == LitNode) {
     		  OFFSET  = Decoration(Decoration(T));
+			  /*
+			  printf("\n\nin reference for right mode and Const/litMode, offset is %d\n\n",OFFSET);
+			  */
 			  CodeGen1 (LITOP, OFFSET, L);
 		 } else {
 		 	  OFFSET = FrameDisplacement (Addr) ;
@@ -758,37 +760,53 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 		ExitLabel = MakeLabel();
 		NextLabel = NoLabel;	/*  for L1 within the first CL */
         for (Kid = 2; Kid < NKids(T); Kid++) {
+			
 			/*  In the if-else below, calculate the case_literal (CLi) */
            if (NodeName(Child(Child(T,Kid),1)) == IntegerNode) { /*  There is only one case literal, example "1:{S}" */
-   			CodeGen0 (DUPOP, NextLabel);
+		   /*
+			printf("\n\nin %d case label \n\n", Kid-1);
+			*/
+			CodeGen0 (DUPOP, NextLabel);
    			IncrementFrameSize();
 			CodeGen1 (LITOP, NodeName (Child(Child(Child(T,Kid),1),1)), NoLabel); /*  Put the case literal on top of the stack */
 			IncrementFrameSize();
 			CodeGen1 (BOPOP, BEQ, NoLabel);
            } else if (NodeName(Child(Child(T,Kid),1)) == IdentifierNode) { /*  There is only one case literal, example "1:{S}" */
-   			CodeGen0 (DUPOP, NextLabel);
+		   /*
+			printf("\n\nin %d case label \n\n", Kid-1);
+			*/
+			CodeGen0 (DUPOP, NextLabel);
    			IncrementFrameSize();
 			Expression (Child(Child(T,Kid),1), NoLabel); /*  Put the case literal on top of the stack */
 			IncrementFrameSize();
 			CodeGen1 (BOPOP, BEQ, NoLabel);
            } else if (NodeName(Child(Child(T,Kid),1)) == RangeNode) {	/*  There is range case literal, example "1..5:{S}" */
-  			CodeGen0 (DUPOP, NextLabel);
+		   /*
+		   printf("\n\nIn hacky rangeNode!\n\n");
+			*/
+		   /*
+		   printf("\n\nin range %d case label \n\n", Kid-1);
+			*/
+			CodeGen0 (DUPOP, NextLabel);
   			IncrementFrameSize();
    			CodeGen0 (DUPOP, NoLabel);
    			IncrementFrameSize();
-			CodeGen1 (LITOP, NodeName (Child(Child(Child(Child(T,Kid),1),1),1)), NoLabel); /*  Put the lower case range literal 'l' on top of the stack */
+			Expression(Child(Child(Child(T,Kid),1),1), NoLabel); /*  Put the lower case range literal 'l' on top of the stack */
 			IncrementFrameSize();
 			CodeGen1 (BOPOP, BGE, NoLabel);
 			DecrementFrameSize();
 			CodeGen0 (SWAPOP, NoLabel);					
 			IncrementFrameSize();			
-			CodeGen1 (LITOP, NodeName (Child(Child(Child(Child(T,Kid),1),2),1)), NoLabel); /*  Put the upper case range literal 'u' on top of the stack */
+			Expression(Child(Child(Child(T,Kid),1),2), NoLabel); /*  Put the upper case range literal 'u' on top of the stack */
 			CodeGen1 (BOPOP, BLE, NoLabel);
 			DecrementFrameSize();
 			CodeGen1 (BOPOP, BAND, NoLabel);
 			DecrementFrameSize();
            }
-           ThisLabel = MakeLabel();
+		   /*
+		   printf("\n\ncleaning in %d case label \n\n", Kid-1);
+           */
+		   ThisLabel = MakeLabel();
 			NextLabel = MakeLabel();
 			CodeGen2 (CONDOP,ThisLabel,NextLabel, NoLabel);
 			DecrementFrameSize();
@@ -801,29 +819,47 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 	   if(NodeName(Child(T,NKids(T))) == CaseClauseNode) { /*  No 'otherwise' */
 			/*  In the if-else below, calculate the case_literal (CLi) */
            if (NodeName(Child(Child(T,NKids(T)),1)) == IntegerNode) { /*  There is only one case literal, example "1:{S}" */
-   			CodeGen0 (DUPOP, NextLabel);
+	       /*
+		   printf("\n\nin %d case label \n\n", Kid-1);
+		   */
+			CodeGen0 (DUPOP, NextLabel);
    			IncrementFrameSize();
 			CodeGen1 (LITOP, NodeName (Child(Child(Child(T,NKids(T)),1),1)), NoLabel); /*  Put the case literal on top of the stack */
 			IncrementFrameSize();
 			CodeGen1 (BOPOP, BEQ, NoLabel);
+           } else if (NodeName(Child(Child(T,Kid),1)) == IdentifierNode) { /*  There is only one case literal, example "1:{S}" */
+		   /*
+			printf("\n\nin %d case label \n\n", Kid-1);
+			*/
+			CodeGen0 (DUPOP, NextLabel);
+   			IncrementFrameSize();
+			Expression (Child(Child(T,Kid),1), NoLabel); /*  Put the case literal on top of the stack */
+			IncrementFrameSize();
+			CodeGen1 (BOPOP, BEQ, NoLabel);
            } else if (NodeName(Child(Child(T,NKids(T)),1)) == RangeNode) {	/*  There is range case literal, example "1..5:{S}" */
-  			CodeGen0 (DUPOP, NextLabel);
+	       /*
+		   printf("\n\nin range %d case label \n\n", Kid-1);
+		   */
+			CodeGen0 (DUPOP, NextLabel);
   			IncrementFrameSize();
    			CodeGen0 (DUPOP, NoLabel);
    			IncrementFrameSize();
-			CodeGen1 (LITOP, NodeName (Child(Child(Child(Child(T,NKids(T)),1),1),1)), NoLabel); /*  Put the lower case range literal 'l' on top of the stack */
+			Expression(Child(Child(Child(T,Kid),1),1), NoLabel); /*  Put the lower case range literal 'l' on top of the stack */
 			IncrementFrameSize();
 			CodeGen1 (BOPOP, BGE, NoLabel);
 			DecrementFrameSize();
 			CodeGen0 (SWAPOP, NoLabel);					
 			IncrementFrameSize();			
-			CodeGen1 (LITOP, NodeName (Child(Child(Child(Child(T,NKids(T)),1),2),1)), NoLabel); /*  Put the upper case range literal 'u' on top of the stack */
+			Expression(Child(Child(Child(T,Kid),1),2), NoLabel); /*  Put the upper case range literal 'u' on top of the stack */
 			CodeGen1 (BOPOP, BLE, NoLabel);
 			DecrementFrameSize();
 			CodeGen1 (BOPOP, BAND, NoLabel);
 			DecrementFrameSize();
            }
-           ThisLabel = MakeLabel();
+		   /*
+		   printf("\n\ncleaning in %d case label \n\n", Kid-1);
+           */
+		   ThisLabel = MakeLabel();
 			NextLabel = MakeLabel();
 			CodeGen2 (CONDOP,ThisLabel,NextLabel, NoLabel);
 			DecrementFrameSize();
@@ -831,7 +867,6 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 			DecrementFrameSize();
 			CascadeLabel = ProcessNode(Child(Child(T,NKids(T)),2),NoLabel); /*  Process statement within the case_clause */
 			CodeGen1 (GOTOOP, ExitLabel, CascadeLabel);
-			
 			CodeGen1 (POPOP, MakeStringOf(1), NextLabel);
 	   } else if (NodeName(Child(T,NKids(T))) == OtherwiseNode) {
 	   		CodeGen1 (POPOP, MakeStringOf(1), NextLabel);
@@ -895,8 +930,12 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
                return (Label2);				 
 
 	   case LitNode : 
-	         for(Kid=1; Kid<=NKids(T); Kid++)
+	         for(Kid=1; Kid<=NKids(T); Kid++) {
+				 /*
+				 printf("\n\nDecorating lit with %d\n\n",Kid-1);
+				 */
 				 Decorate(Child(T,Kid),MakeStringOf(Kid-1));
+			 }
 			 return CurrLabel;
 		
   case ConstsNode : 
@@ -910,16 +949,19 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 		 /*
 		 printf("\n\nConst integer!\n\n");
  		 */
+		 Decorate(Child(T,2), Decoration(Child(T,1))); /*Decorate second child with type*/
 		 Decorate(Child(T,1), NodeName(Child(Child(T,2),1)));
  	 } else if(NodeName(Child(T,2)) == CharNode) {
 		 /*
 		 printf("\n\nConst char!\n\n");
  		 */
+		 Decorate(Child(T,2), Decoration(Child(T,1))); /*Decorate second child with type*/
 		 Decorate(Child(T,1), MakeStringOf(Character(NodeName(Child(Child(T,2),1)),2)));
  	 } else if(NodeName(Child(T,2)) == IdentifierNode) {
 		 /*
 		 printf("\n\nConst id!\n\n");
  	 	*/
+		 Decorate(Child(T,2), Decoration(Decoration(Child(T,1)))); /*Decorate second child with type*/
 		Decorate(Child(T,1), Decoration(Lookup(NodeName(Child(Child(T,2),1)),T)));
  	 }
  		return CurrLabel;		
