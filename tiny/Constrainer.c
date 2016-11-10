@@ -563,7 +563,8 @@ void ProcessNode (TreeNode T)
             ProcessNode (Child(T,Kid));
 		 /*
 		 PrintTree(stdout,RootOfTree(1));
-         */
+         PrintAllStrings(stdout);
+		 */
 		 CloseScope();
          break;
 		
@@ -712,7 +713,10 @@ void ProcessNode (TreeNode T)
        case ConstsNode :  
             for (Kid = 1; Kid <= NKids(T); Kid++)
                ProcessNode (Child(T,Kid));
-            break;	
+			/*
+			PrintDclnTable(stdout);
+            */
+			break;	
 			
 			
 			

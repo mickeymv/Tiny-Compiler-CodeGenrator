@@ -527,8 +527,10 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 	  /*
 	  printf("\nIn Program Node!\n");
 	  */
+	  /*
 	  PrintAllStrings(stdout);
-         CurrLabel = ProcessNode (Child(T,2),CurrLabel);
+        */
+		 CurrLabel = ProcessNode (Child(T,2),CurrLabel);
 		 for(Kid=3;Kid<NKids(T);Kid++) {
          CurrLabel = ProcessNode (Child(T,Kid),CurrLabel);		 
 	 }
@@ -549,8 +551,10 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
       case DclnsNode :
 	   for (Kid = 1; Kid <= NKids(T); Kid++)
            CurrLabel = ProcessNode (Child(T,Kid), CurrLabel);
-  PrintTree(stdout,RootOfTree(1));	
-         if (NKids(T) > 0)
+	   /*
+  	 	PrintTree(stdout,RootOfTree(1));	
+         */
+		 if (NKids(T) > 0)
             return (NoLabel);
          else
             return (CurrLabel);
