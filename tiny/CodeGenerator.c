@@ -586,7 +586,7 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 		 
      case SwapNode :
 		 	Reference (Child(T,1), RightMode, CurrLabel);
-            Reference (Child(T,2), RightMode, CurrLabel);
+            Reference (Child(T,2), RightMode, NoLabel);
             Reference (Child(T,1), LeftMode, NoLabel);
 			Reference (Child(T,2), LeftMode, NoLabel);
             return (NoLabel);	 
