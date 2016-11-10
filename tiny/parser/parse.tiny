@@ -46,6 +46,7 @@ CaseT		-> Name
 			-> Integer;
 		   
 Otherwise	-> ';' OTHERWISE Statement					=> "otherwise"
+			-> ';' OTHERWISE Statement	';'				=> "otherwise"
 			-> ';';
 	   
 Statements	->	Statement list ';' ;
