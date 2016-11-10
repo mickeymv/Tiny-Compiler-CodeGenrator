@@ -573,7 +573,10 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 
 
       case AssignNode :
-         Expression (Child(T,2), CurrLabel);
+	  /*
+	  printf("\n\nIn assignNode!\n\n");
+        */
+		 Expression (Child(T,2), CurrLabel);
          Reference (Child(T,1), LeftMode, NoLabel);
          return (NoLabel);
 		 
@@ -991,9 +994,9 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 		 Decorate(Child(T,2), Decoration(Child(T,1))); /*Decorate second child with type*/
 		 Decorate(Child(T,1), NodeName(Child(Child(T,2),1)));
  	 } else if(NodeName(Child(T,2)) == CharNode) {
-		 
+		 /*
 		 printf("\n\nConst char!\n\n");
- 		 
+ 		 */
 		 Decorate(Child(T,2), Decoration(Child(T,1))); /*Decorate second child with type*/
 		 /*
 		 printf("\n\nDecorating id of const char with %c\n\n", Character(NodeName(Child(Child(T,2),1)),2));
@@ -1002,9 +1005,17 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
  	 } else if(NodeName(Child(T,2)) == IdentifierNode) {
 		 /*
 		 printf("\n\nConst id!\n\n");
- 	 	*/
+		 */
 		 Decorate(Child(T,2), Decoration(Decoration(Child(T,1)))); /*Decorate second child with type*/
+		 /*
+		printf("\n\n2Const id!\n\n");
+		*/
+		/*
 		Decorate(Child(T,1), Decoration(Lookup(NodeName(Child(Child(T,2),1)),T)));
+		*/
+		 /*
+		printf("\n\n3Const id!\n\n");
+		*/
  	 }
  		return CurrLabel;		
 
