@@ -1006,12 +1006,18 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 		 /*
 		 printf("\n\nConst id!\n\n");
 		 */
-		 Decorate(Child(T,2), Decoration(Decoration(Child(T,1)))); /*Decorate second child with type*/
+		 VariableNode = Decoration(Decoration(Child(T,1)));
+		 
+		 
+		 Decorate(Child(T,1), Decoration(Decoration(Child(T,2))));
+		 
+		 
+		 Decorate(Child(T,2), VariableNode); /*Decorate second child with type*/
 		 /*
 		printf("\n\n2Const id!\n\n");
 		*/
 		
-		Decorate(Child(T,1), Decoration(Decoration(Child(Child,2))));
+		
 		
 		 /*
 		printf("\n\n3Const id!\n\n");
