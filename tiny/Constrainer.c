@@ -129,11 +129,12 @@ void Constrain(void)
    for (i=1;i<=SizeOf(Tree);i++)
       printf("%2d: %d\n",i,Element(Tree,i));
 #endif
-   /*
-   printf("\n\nThe intial tree after parsing is...\n\n");
    
+   /* 
+   printf("\n\nThe intial tree after parsing is...\n\n");  
    PrintTree(stdout,RootOfTree(1));
-*/
+   */
+   
    ProcessNode(RootOfTree(1)); 
 
     
@@ -526,9 +527,9 @@ UserType Expression (TreeNode T)
 	   	return Type1;
 	   
  	   case CallNode:
-	   /*
+	   
 	   	printf("\n\nInside the callNode in Constrainer!\n\n");
-	   */
+		
 	   	 Type1 = Expression(Child(T,1));
 		 /*
 		 printf("\n\n2Inside the callNode in Constrainer!\n\n");
@@ -562,12 +563,24 @@ UserType Expression (TreeNode T)
 		 StartingArgument =2;
 		 
          for (Kid = 1; Kid <= NKids(Temp1); Kid++) {/*iterate through all var nodes under params*/
+			 
+			 /*if it enters here, it means there function parameters ('var' children under params node) 
+			 and therefore there should be arguments which should be passed to this function.*/
+			 
 			 /*
 			 printf("\n\nProcessing var #%d of params!\n\n",Kid);
 			 */
+			 
+			 if (NodeName(Child(T,2)) == NullNode) { /*This means there were no arguemnts provided in the function call, but it is expected, so break!*/
+	             ErrorHeader(Child(T,1));
+	             printf ("Function requires arguments!\n");
+	             printf ("\n");
+				 break;
+			 }
+
 			 numberOfParametersPerType = 0;
 			 for(GKid=1; GKid < NKids(Child(Temp1,Kid)); GKid++) {/*iterate through all the id nodes (except the last node which is a return type) under each individual var node*/
-				 /*
+				 /* 
 				 printf("\n\nProcessing var #%d of var!\n\n",GKid);
 				 */
 				 ParamsCount++; 
@@ -584,7 +597,7 @@ UserType Expression (TreeNode T)
 		 /*
 		 printf("\n\n6Inside the callNode in Constrainer!\n\n");
 		 */
-		 if (ParamsCount != NKids(T)-1) {  /*check if The argument count does matches the parameter count*/
+		 if (ParamsCount != NKids(T)-1 && (NodeName(Child(T,2)) != NullNode)) {  /*check if The argument count does matches the parameter count*/
              ErrorHeader(T);
              printf ("The argument count does not match the parameter count!\n");
              printf ("\n");
