@@ -598,7 +598,7 @@ UserType Expression (TreeNode T)
 		 printf("\n\n6Inside the callNode in Constrainer!\n\n");
 		 */
 		 if (ParamsCount != NKids(T)-1 && (NodeName(Child(T,2)) != NullNode)) {  /*check if The argument count does matches the parameter count*/
-             ErrorHeader(T);
+             ErrorHeader(Child(T,1));
              printf ("The argument count does not match the parameter count!\n");
              printf ("\n");
 		 }
