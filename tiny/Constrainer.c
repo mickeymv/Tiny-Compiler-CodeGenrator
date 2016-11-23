@@ -527,9 +527,9 @@ UserType Expression (TreeNode T)
 	   	return Type1;
 	   
  	   case CallNode:
-	   
+	   /*
 	   	printf("\n\nInside the callNode in Constrainer!\n\n");
-		
+		*/
 	   	 Type1 = Expression(Child(T,1));
 		 /*
 		 printf("\n\n2Inside the callNode in Constrainer!\n\n");
@@ -893,7 +893,7 @@ void ProcessNode (TreeNode T)
 	  /*
 		printf("\n\nInside the FunctionNode in Constrainer!\n\n");
 	  */
-      if (NodeName(Child(T,1)) != NodeName(Child(T,NKids(T))))  /*Function names should match*/
+      if (NodeName(Child(Child(T,1),1)) != NodeName(Child(Child(T,NKids(T)),1)))  /*Function names should match*/
       {
          ErrorHeader(T);
          printf ("Function names at the start and end should match in the definition!\n");
