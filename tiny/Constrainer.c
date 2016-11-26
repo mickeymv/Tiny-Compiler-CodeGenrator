@@ -538,7 +538,7 @@ UserType Expression (TreeNode T)
              ErrorHeader(Child(T,1));
              printf ("Not a function!\n");
              printf ("\n");
-		 }
+		 } else {
 		 /*
 		 printf("\n\n3Inside the callNode in Constrainer!\n\n");
 		 */
@@ -602,6 +602,7 @@ UserType Expression (TreeNode T)
              printf ("The argument count does not match the parameter count!\n");
              printf ("\n");
 		 }
+	 }
 		 /*
 		 printf("\n\nDone with the callNode in Constrainer!\n\n");
 		 */
