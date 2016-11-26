@@ -37,7 +37,6 @@ Statement  -> Name ASSIGNMENT Expression          	=> "assign"
 		   -> FOR Name ASSIGNMENT Expression DOWNTO Expression DO Statement => "downto"
 		   -> EXIT									=> "exit"
 		   -> LOOP Statements POOL					=> "loop"
-		   
 		   -> CASE Expression OF Case_Clause list ';' Otherwise END	=> "case"
 		   ->                                        	=> "<null>";
 			
@@ -67,8 +66,7 @@ Expression -> Term
 	   -> Term NOTEQ Term			=> "<>"
 	   -> Term GTE Term				=> ">="
 	   -> Term LT Term				=> "<"
-	   -> Term GT Term				=> ">"
-	   -> Name '(' Arguments ')' => "call";
+	   -> Term GT Term				=> ">";
 	   
 Arguments -> Expression list ','
 		   -> => "<null>";
@@ -98,7 +96,8 @@ Primary    -> EOFFN						=> "eof"
 		   -> CHARLIT					=> "<char>"
 		   -> Intrins
 		   -> CHR '(' Expression ')'	=> "chr"
-           -> '(' Expression ')';
+           -> '(' Expression ')'
+		   -> Name '(' Arguments ')' => "call";
 		   
 Intrins		-> SUCC '(' Expression ')'	=> "succ"
 			-> PRED '(' Expression ')'	=> "pred"
