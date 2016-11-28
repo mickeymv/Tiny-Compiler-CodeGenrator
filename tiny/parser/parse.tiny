@@ -1,13 +1,12 @@
 %%
 Tiny       -> PROGRAM Name ':' Consts Types Dclns SubProgs Body Name '.' 	=> "program";
-Consts     -> CONST	Const list ';'		=> "consts"
+Consts     -> CONST	(Const ';')+		=> "consts"
 		   -> 					     	=> "consts";
-Const      -> Name '='	ConstRVal		=> "const"
-		   -> 					     	=> "<null>";
+Const      -> Name '='	ConstRVal		=> "const";
 ConstRVal  -> Integer
 		   -> Character
 		   -> Name;
-Types     -> TYPE Typel list ';'		=> "types"
+Types     -> TYPE (Typel ';')+		=> "types"
 		   -> 					     	=> "types";
 Typel     -> Name '=' '(' Enumerations ')' => "type"
 		  -> Name '=' Name 				=> "type"
@@ -16,10 +15,8 @@ Enumerations -> Name list ','			=> "lit";
 Dclns      -> VAR (Dcln ';')*				=> "dclns"
            -> 					     	=> "dclns";
 Dcln       -> Name list ',' ':' Name			=> "var";
-SubProgs	->	Function list ';'						=> "subprogs"
-			-> 											=> "subprogs";
-Function   -> FUNCTION Name Params ':' Name ';' Consts Types Dclns Body Name => "function"
-			->							=> "<null>";
+SubProgs	->	Function*						=> "subprogs";
+Function   -> FUNCTION Name Params ':' Name ';' Consts Types Dclns Body Name ';' => "function";
 Params		-> 	'(' Dcln list ';' ')'									=> "params";
 Body       -> BEGINX Statement list ';' END      	=> "block";
 Statement  -> Name ASSIGNMENT Expression          	=> "assign"

@@ -127,9 +127,14 @@
 #define PredNode 100
 #define OrdNode 101
 #define ChrNode 102
+#define SubProgsNode 103
+#define FunctionNode 104
+#define ParamsNode 105
+#define CallNode 106
+#define ReturnNode 107
 
 
-#define    NumberOfNodes 102
+#define    NumberOfNodes 107
 typedef int Mode;
 
 FILE *CodeFile;
@@ -155,7 +160,8 @@ char *node_name[] =
      "<null>","<=","+","-","read","<integer>","<identifier>","**","not","or","*",
  	"/","and","mod","=","<>",">=","<",">","true","false","eof","repeat","swap","loop",
 	"exit", "upto", "downto", "case", "..", "case_clause", "otherwise", "lit", "char",
-	"<char>", "consts", "const", "var", "<string>", "succ", "pred", "ord", "chr"};
+	"<char>", "consts", "const", "var", "<string>", "succ", "pred", "ord", "chr", 
+	"subprogs", "function", "params", "call", "return"};
 
 
 void CodeGenerate(int argc, char *argv[])
@@ -268,7 +274,6 @@ void Reference(TreeNode T, Mode M, Clabel L)
 						DecrementFrameSize();
 	                break;
       case RightMode :  	  
-	IncrementFrameSize();
       if (ProcLevel (Addr) == 0) 
          Op = LGVOP;
   		else
@@ -284,6 +289,7 @@ void Reference(TreeNode T, Mode M, Clabel L)
 		 	  OFFSET = FrameDisplacement (Addr) ;
 			  CodeGen1 (Op,MakeStringOf(OFFSET),L);
 		 }
+		 	IncrementFrameSize();
                         break;
    }
 }
@@ -301,7 +307,7 @@ void Expression (TreeNode T, Clabel CurrLabel)
    TreeNode Decl;
    int Kid, Mode, Value;
    unsigned int CharToInt;
-   Clabel Label1;
+   Clabel Label1, Label2;
 
    if (TraceSpecified)
    {
@@ -495,6 +501,35 @@ void Expression (TreeNode T, Clabel CurrLabel)
 	  	Expression(Child(T,1), CurrLabel);
    	   break;
 	   
+   	case CallNode:
+   	/*
+   		 	  CodeGen ( LIT 0, Currlabel )
+                 IncrementFrameSize
+                 L2 := Decoration(Decoration(FK(Decoration(FK(T)))))
+                 for k:=2 to Nkids do
+                      Expression (Child(T,k), NoLabel)
+                 CodeGen (CODEOP, L2, Nolabel)
+                 DecrementFrameSize, once for each parameter
+                 CodeGen (CALLOP, MakeStringOf(FrameSize-1), NoLabel)
+   	*/
+   		IncrementFrameSize();
+   		CodeGen1 (LITOP, MakeStringOf(0), CurrLabel);
+   		Label2 = Decoration(Decoration(Child(Decoration(Child(T, 1)), 1)));
+		
+   	 	for(Kid=2; Kid<=NKids(T);Kid++) { /*Process arguments to function call*/
+   	    	Expression (Child(T,Kid), NoLabel);		 
+   		}
+		
+   		CodeGen1 (CODEOP, Label2, NoLabel);
+		
+   	 	for(Kid=2; Kid<=NKids(T);Kid++) { /*DecrementFrameSize, once for each parameter*/
+   	    	DecrementFrameSize();	 
+   		}
+		
+   		CodeGen1 (CALLOP, MakeStringOf(FrameSize-1), NoLabel);
+		
+   	break;
+	   
       default :
          ReportTreeErrorAt(T);
          printf ("<<< CODE GENERATOR >>> : UNKNOWN NODE NAME ");
@@ -508,7 +543,7 @@ void Expression (TreeNode T, Clabel CurrLabel)
 
 Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 {
-   int Kid, Num, Type;
+   int Kid, Num, Type, Var;
    Clabel Label1, Label2, Label3, CascadeLabel, ExitLabel, ThisLabel, NextLabel;
    TreeNode VariableNode;
 
@@ -530,9 +565,25 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
 	  /*
 	  PrintAllStrings(stdout);
         */
+	  
+	  /*
+Process kids 2,3,4,5 (cascade Currlabel)
+              Generate GOTO L1  (w/ Currlabel)
+              Process kid 6 w/NoLabel.  Ignore label returned
+              Process kid 7 w/L1; return Currlabel
+              return Currlabel
+	  */
+	  
 		 CurrLabel = ProcessNode (Child(T,2),CurrLabel);
-		 for(Kid=3;Kid<NKids(T);Kid++) {
+		 for(Kid=3;Kid<NKids(T) && NodeName(Child(T,Kid)) != SubProgsNode;Kid++) {
          CurrLabel = ProcessNode (Child(T,Kid),CurrLabel);		 
+	 }
+	 
+	 if (NodeName(Child(T,Kid)) == SubProgsNode) { /*There are functions defined*/
+	 	Label1 = MakeLabel();
+		CodeGen1 (GOTOOP, Label1, CurrLabel );
+		ProcessNode (Child(T,Kid), NoLabel);
+		CurrLabel = ProcessNode (Child(T,Kid+1), Label1);	/*Process Body with L1 and return CurrLabel*/
 	 }
          return (CurrLabel);
 
@@ -546,6 +597,79 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
   		 ProcessNode(Child(T,2), NoLabel);
   	 }
 	     return (CurrLabel);
+		 
+	case SubProgsNode:
+ 		for(Kid=1;Kid<=NKids(T);Kid++) {
+    		CurrLabel = ProcessNode (Child(T,Kid),CurrLabel);		 
+		}
+		return NoLabel;
+		 
+	case FunctionNode:
+	/*
+					OpenFrame
+	              Decorate (FK(T), MakeAddress)
+	              IncrementFrameSize
+	              L2 := Makelabel
+	              Decorate (T,L2)
+	              Process kid 2 (WITHOUT GENERATING LIT INSTRUCTIONS)
+	                     using Currlabel
+	              Process kids 4,5 using Currlabel
+	              Process kid 6, taking L1 and returning Currlabel
+	              Process kid 7, using Currlabel
+	              CodeGen ( LLV 0, Currlabel)
+	              CodeGen ( RTN 1, Nolabel)
+	              CloseFrame
+	              return Nolabel
+	*/
+
+	OpenFrame();
+    Num = MakeAddress();
+    Decorate ( Child(T,1), Num);
+	IncrementFrameSize();
+	Label2 = MakeLabel();
+	Decorate ( T, Label2);
+	
+	VariableNode = Child(T, 2); /*Params Node*/
+	if (NodeName(VariableNode) == ParamsNode && NKids(VariableNode) > 0) { /*If there are parameters*/
+ 		for(Var = 1; Var <= NKids(VariableNode);Var++) { /*Go through every VarNode*/
+            for (Kid = 1; Kid < NKids(T); Kid++) /*Go through every IdNode (except last type idnode) under VarNode*/
+            {
+               Num = MakeAddress();
+               Decorate ( Child(Child(Child(T,2),Var),Kid), Num);
+            }
+		}
+	}
+	
+ 	for(Kid=4; Kid<NKids(T)-1 && NodeName(Child(T,Kid)) != DclnsNode;Kid++) { /*Process kids 4 (consts), 5 (types) using Currlabel*/
+    	CurrLabel = ProcessNode (Child(T,Kid), CurrLabel);		 
+	}
+
+	
+	CurrLabel = ProcessNode (Child(T,NKids(T)-2), Label2); /*Process kid 6 (dclns), taking L1 and returning Currlabel*/
+
+
+	ProcessNode (Child(T, NKids(T)-1), CurrLabel); /*Process kid 7 (blockNode, second to last kid), using Currlabel*/
+
+	CodeGen1 (LLVOP, MakeStringOf(0), NoLabel);
+	CodeGen1 (RTNOP, MakeStringOf(1), NoLabel);
+
+	CloseFrame();
+			 
+	return NoLabel;
+	
+	
+	case ReturnNode:
+	/*
+		   			Expression (FK(T), Currlabel)
+	              CodeGen (RTN 1, NoLabel)
+	              DecrementFrameSize
+	              return Nolabel
+	*/
+	
+		Expression (Child(T, 1), CurrLabel);
+		CodeGen1 (RTNOP, MakeStringOf(1), NoLabel);
+		DecrementFrameSize();	 
+	return NoLabel;
 
 
       case DclnsNode :
@@ -566,7 +690,7 @@ Clabel ProcessNode (TreeNode T, Clabel CurrLabel)
             Num = MakeAddress();
             Decorate ( Child(T,Kid), Num);
             IncrementFrameSize();
-			CodeGen1 (LITOP, MakeStringOf(0), NoLabel);
+			CodeGen1 (LITOP, MakeStringOf(0), CurrLabel);
          }
          return (NoLabel);                 
 
