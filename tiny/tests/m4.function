@@ -1,0 +1,12 @@
+program fn:
+ var n : integer;
+
+ function f(a: integer):integer;
+  begin
+   return(1);
+  end f;
+
+ begin
+  read(n);
+  output(f());
+ end fn.

@@ -1025,7 +1025,7 @@ Type := Expression ( FK(T) )
 		 /*
 		 printf("\nMode of leftHandId is %d\n",ModeOf(LeftHandId, IdInUse));
 		 */
-		 if (ModeOf(LeftHandId, IdInUse) != VarNode) {
+		 if (ModeOf(LeftHandId, IdInUse) != VarNode && ModeOf(LeftHandId, IdInUse) != FunctionNode) { /*TODO: Make sure for function name variable is done within that function*/
              ErrorHeader(Child(T,1));
              printf ("Left hand side of assignment should be a var!\n");
              printf ("\n");

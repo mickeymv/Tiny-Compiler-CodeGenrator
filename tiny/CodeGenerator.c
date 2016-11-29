@@ -290,7 +290,7 @@ void Reference(TreeNode T, Mode M, Clabel L)
 			  CodeGen1 (Op,MakeStringOf(OFFSET),L);
 		 }
 		 	IncrementFrameSize();
-                        break;
+            break;
    }
 }
 
@@ -644,9 +644,9 @@ Process kids 2,3,4,5 (cascade Currlabel)
     	CurrLabel = ProcessNode (Child(T,Kid), CurrLabel);		 
 	}
 
-	
-	CurrLabel = ProcessNode (Child(T,NKids(T)-2), Label2); /*Process kid 6 (dclns), taking L1 and returning Currlabel*/
-
+	if (NodeName(Child(T,NKids(T)-2)) == DclnsNode) {
+		CurrLabel = ProcessNode (Child(T,NKids(T)-2), Label2); /*Process kid 6 (dclns), taking L1 and returning Currlabel*/
+	}
 
 	ProcessNode (Child(T, NKids(T)-1), CurrLabel); /*Process kid 7 (blockNode, second to last kid), using Currlabel*/
 
