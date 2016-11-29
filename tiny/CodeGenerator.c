@@ -648,9 +648,9 @@ Process kids 2,3,4,5 (cascade Currlabel)
 		CurrLabel = ProcessNode (Child(T,NKids(T)-2), Label2); /*Process kid 6 (dclns), taking L1 and returning Currlabel*/
 	}
 
-	ProcessNode (Child(T, NKids(T)-1), CurrLabel); /*Process kid 7 (blockNode, second to last kid), using Currlabel*/
+	CurrLabel = ProcessNode (Child(T, NKids(T)-1), CurrLabel); /*Process kid 7 (blockNode, second to last kid), using Currlabel and returning Currlabel*/
 
-	CodeGen1 (LLVOP, MakeStringOf(0), NoLabel);
+	CodeGen1 (LLVOP, MakeStringOf(0), CurrLabel); /*should use CurrLabel*/
 	CodeGen1 (RTNOP, MakeStringOf(1), NoLabel);
 
 	CloseFrame();
