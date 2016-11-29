@@ -632,7 +632,7 @@ Process kids 2,3,4,5 (cascade Currlabel)
 	VariableNode = Child(T, 2); /*Params Node*/
 	if (NodeName(VariableNode) == ParamsNode && NKids(VariableNode) > 0) { /*If there are parameters*/
  		for(Var = 1; Var <= NKids(VariableNode);Var++) { /*Go through every VarNode*/
-            for (Kid = 1; Kid < NKids(T); Kid++) /*Go through every IdNode (except last type idnode) under VarNode*/
+            for (Kid = 1; Kid < NKids(Child(VariableNode, Var)); Kid++) /*Go through every IdNode (except last type idnode) under VarNode*/
             {
                Num = MakeAddress();
                Decorate ( Child(Child(Child(T,2),Var),Kid), Num);
