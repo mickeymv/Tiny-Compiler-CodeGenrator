@@ -691,6 +691,7 @@ Process kids 2,3,4,5 (cascade Currlabel)
             Decorate ( Child(T,Kid), Num);
             IncrementFrameSize();
 			CodeGen1 (LITOP, MakeStringOf(0), CurrLabel);
+			CurrLabel = NoLabel;
          }
          return (NoLabel);                 
 

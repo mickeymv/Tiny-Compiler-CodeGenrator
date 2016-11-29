@@ -892,6 +892,18 @@ void ProcessNode (TreeNode T)
 			   
 	  case FunctionNode :
 	  /*
+	  		NodeName ( FK(FK(T)) ) = NodeName ( FK(LK(T)) ) ?
+              Enter "f" with FK(T)
+              OpenScope
+              Enter "<subprog_contxt>" with T
+              T1 := Lookup(R)
+              Decorate ( FK(T), Decoration(T1) )
+              Decorate ( FK(FK(T)), T)
+              Process kids 2,4,5,6,7
+              CloseScope
+	  */
+	  
+	  /*
 		printf("\n\nInside the FunctionNode in Constrainer!\n\n");
 	  */
       if (NodeName(Child(Child(T,1),1)) != NodeName(Child(Child(T,NKids(T)),1)))  /*Function names should match*/
