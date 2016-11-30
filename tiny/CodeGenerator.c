@@ -174,9 +174,11 @@ void CodeGenerate(int argc, char *argv[])
    Tree_File = Open_File("_TREE", "r"); 
    NumberTrees = Read_Trees();
    fclose (Tree_File);                     
-   /*
+   /* 
    printf("\nBefore ProcessNode in CodeGenerate!\n");
+   PrintTree(stdout,RootOfTree(1));	
 */
+   
    HaltLabel = ProcessNode (RootOfTree(1), NoLabel);
    /*
    printf("\n\nAfter ProcessNode in CodeGenerate!\n\n");
@@ -557,6 +559,8 @@ void Expression (TreeNode T, Clabel CurrLabel)
    		CodeGen1 (CALLOP, MakeStringOf(FrameSize-1), NoLabel);
 		
    	break;
+	
+	case NullNode : break;
 	   
       default :
          ReportTreeErrorAt(T);

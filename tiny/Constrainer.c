@@ -131,12 +131,16 @@ void Constrain(void)
 #endif
    
    /* 
-   printf("\n\nThe intial tree after parsing is...\n\n");  
+   printf("\n\nThe intial tree after parsing, before constraining is...\n\n");  
    PrintTree(stdout,RootOfTree(1));
    */
    
    ProcessNode(RootOfTree(1)); 
 
+   /* 
+   printf("\n\nThe final tree after constraining is...\n\n");  
+   PrintTree(stdout,RootOfTree(1));
+   */
     
    Tree_File = fopen("_TREE", "w");  
    Write_Trees();
