@@ -636,6 +636,7 @@ Process kids 2,3,4,5 (cascade Currlabel)
             {
                Num = MakeAddress();
                Decorate ( Child(Child(Child(T,2),Var),Kid), Num);
+			   IncrementFrameSize();
             }
 		}
 	}
