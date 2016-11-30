@@ -28,7 +28,7 @@ Statement  -> Name ASSIGNMENT Expression          	=> "assign"
            -> IF Expression THEN Statement       	=> "if"
            -> WHILE Expression DO Statement      	=> "while"
            -> Body
-		   -> RETURN '(' Expression ')'				=> "return"
+		   -> RETURN ('(' Expression ')')*				=> "return"
 		   -> REPEAT Statements UNTIL Expression			=> "repeat"
 		   -> FOR Name ASSIGNMENT Expression TO Expression DO Statement => "upto"
 		   -> FOR Name ASSIGNMENT Expression DOWNTO Expression DO Statement => "downto"

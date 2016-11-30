@@ -955,6 +955,8 @@ Type := Expression ( FK(T) )
               if Decoration ( FK(N) ) <> Type then Error
  */
  
+ if (NKids(T) > 0) {
+	 /*Return has an argument*/
  Type1 = Expression(Child(T,1));
  
  Temp = Lookup(SUBPRG_CTXT,T);
@@ -970,6 +972,10 @@ Type := Expression ( FK(T) )
      printf ("Return is not the same type as the function's return type!\n");
      printf ("\n");
  }
+} else {
+	/*Return has NO argument*/
+	/*TODO:? Check if the value in the function name is the same type as return type?*/
+}
  break;
 		  
 		  			   

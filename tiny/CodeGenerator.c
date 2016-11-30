@@ -179,8 +179,15 @@ void CodeGenerate(int argc, char *argv[])
 */
    HaltLabel = ProcessNode (RootOfTree(1), NoLabel);
    /*
-   printf("\nAfter ProcessNode in CodeGenerate!\n");
+   printf("\n\nAfter ProcessNode in CodeGenerate!\n\n");
+   
+  PrintAllStrings(stdout);
+  
+  PrintTree(stdout,RootOfTree(1));	
    */
+   /*  */
+   
+   
    CodeGen0 (HALTOP, HaltLabel); 
 
    CodeFile = Open_File (CodeFileName, "w");
@@ -270,11 +277,20 @@ void Reference(TreeNode T, Mode M, Clabel L)
                         else
                            Op = SLVOP;
 					    OFFSET = FrameDisplacement (Addr) ;
+						/*
+						printf("\n\nCODEGEN Store!\n\n");
+						*/
 						CodeGen1 (Op,MakeStringOf(OFFSET),L);
 						DecrementFrameSize();
-	                break;
-      case RightMode :  	  
-      if (ProcLevel (Addr) == 0) 
+						/*
+						printf("\n\nFrame size decreased!\n\n");
+	                */
+					break;
+      case RightMode :
+	  /*  	  
+	  printf("\n\nFrame size increased!\n\n");
+      */
+	  if (ProcLevel (Addr) == 0) 
          Op = LGVOP;
   		else
          Op = LLVOP;
@@ -290,7 +306,10 @@ void Reference(TreeNode T, Mode M, Clabel L)
 			  CodeGen1 (Op,MakeStringOf(OFFSET),L);
 		 }
 		 	IncrementFrameSize();
-            break;
+			/*
+		 	printf("\n\nCODEGEN LOAD!\n\n");
+            */
+			break;
    }
 }
 
@@ -502,6 +521,9 @@ void Expression (TreeNode T, Clabel CurrLabel)
    	   break;
 	   
    	case CallNode:
+	/*
+	printf("\nframesize in call node is %d\n",FrameSize);
+	*/
    	/*
    		 	  CodeGen ( LIT 0, Currlabel )
                  IncrementFrameSize
@@ -517,8 +539,14 @@ void Expression (TreeNode T, Clabel CurrLabel)
    		Label2 = Decoration(Decoration(Child(Decoration(Child(T, 1)), 1)));
 		
    	 	for(Kid=2; Kid<=NKids(T);Kid++) { /*Process arguments to function call*/
-   	    	Expression (Child(T,Kid), NoLabel);		 
-   		}
+			/*
+			printf("\nbefore processing arg%d in callNode, framesize %d\n",Kid,FrameSize);
+   	    	*/
+			Expression (Child(T,Kid), NoLabel);		 
+			/*
+			printf("\nafter processing arg%d in callNode, framesize %d\n",Kid,FrameSize);
+   		*/
+		}
 		
    		CodeGen1 (CODEOP, Label2, NoLabel);
 		
@@ -646,11 +674,21 @@ Process kids 2,3,4,5 (cascade Currlabel)
 	}
 
 	if (NodeName(Child(T,NKids(T)-2)) == DclnsNode) {
+		/*
+		printf("\n\nBefore getting into dclns, label is %d\n\n",Label2);
+		*/
 		CurrLabel = ProcessNode (Child(T,NKids(T)-2), Label2); /*Process kid 6 (dclns), taking L1 and returning Currlabel*/
+		/*
+		printf("\n\nAfter getting into dclns, label is %d\n\n",CurrLabel);
+	*/
 	}
-
+	/*
+printf("\n\nBefore getting into block, label is %d\n\n",CurrLabel);
+	*/
 	CurrLabel = ProcessNode (Child(T, NKids(T)-1), CurrLabel); /*Process kid 7 (blockNode, second to last kid), using Currlabel and returning Currlabel*/
-
+	/*
+printf("\n\nAfter getting into block, label is %d\n\n",CurrLabel);
+*/
 	CodeGen1 (LLVOP, MakeStringOf(0), CurrLabel); /*should use CurrLabel*/
 	CodeGen1 (RTNOP, MakeStringOf(1), NoLabel);
 
@@ -666,10 +704,16 @@ Process kids 2,3,4,5 (cascade Currlabel)
 	              DecrementFrameSize
 	              return Nolabel
 	*/
-	
+	if (NKids(T) > 0) {
+		/*Return has an argument*/
 		Expression (Child(T, 1), CurrLabel);
 		CodeGen1 (RTNOP, MakeStringOf(1), NoLabel);
 		DecrementFrameSize();	 
+	} else {
+		/*Return has NO argument*/
+		CodeGen0 (NOP, CurrLabel);
+		/*TODO:? Return value in function name variable*/
+	}
 	return NoLabel;
 
 
@@ -692,6 +736,9 @@ Process kids 2,3,4,5 (cascade Currlabel)
             Decorate ( Child(T,Kid), Num);
             IncrementFrameSize();
 			CodeGen1 (LITOP, MakeStringOf(0), CurrLabel);
+			/*
+			printf("\n\nIn for var%d, label is %d\n\n", Kid,CurrLabel);
+			*/
 			CurrLabel = NoLabel;
          }
          return (NoLabel);                 
@@ -864,7 +911,10 @@ Process kids 2,3,4,5 (cascade Currlabel)
          Label1 = MakeLabel();
          Label2 = MakeLabel();
          Label3 = MakeLabel();
-         CodeGen2 (CONDOP,Label1,Label2, NoLabel);
+		 /*
+		 printf("\n\nIn IfNode, labels are %d, %d, %d\n\n",Label1,Label2,Label3);
+         */
+		 CodeGen2 (CONDOP,Label1,Label2, NoLabel);
          DecrementFrameSize();
          CodeGen1 (GOTOOP, Label3, ProcessNode (Child(T,2), Label1) );
          if (Rank(T) == 3)
