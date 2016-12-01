@@ -132,9 +132,10 @@
 #define ParamsNode 105
 #define CallNode 106
 #define ReturnNode 107
+#define ProcedureNode 108
 
 
-#define    NumberOfNodes 107
+#define    NumberOfNodes 108
 typedef int Mode;
 
 FILE *CodeFile;
@@ -161,7 +162,7 @@ char *node_name[] =
  	"/","and","mod","=","<>",">=","<",">","true","false","eof","repeat","swap","loop",
 	"exit", "upto", "downto", "case", "..", "case_clause", "otherwise", "lit", "char",
 	"<char>", "consts", "const", "var", "<string>", "succ", "pred", "ord", "chr", 
-	"subprogs", "function", "params", "call", "return"};
+	"subprogs", "function", "params", "call", "return", "procedure"};
 
 
 void CodeGenerate(int argc, char *argv[])
@@ -523,6 +524,7 @@ void Expression (TreeNode T, Clabel CurrLabel)
    	   break;
 	   
    	case CallNode:
+	/*CallNode expression for Functions!*/
 	/*
 	printf("\nframesize in call node is %d\n",FrameSize);
 	*/
@@ -649,7 +651,7 @@ Process kids 2,3,4,5 (cascade Currlabel)
 	              Process kid 6, taking L1 and returning Currlabel
 	              Process kid 7, using Currlabel
 	              CodeGen ( LLV 0, Currlabel)
-	              CodeGen ( RTN 1, Nolabel)
+	              CodeGen ( RTN 1, Nolabel),
 	              CloseFrame
 	              return Nolabel
 	*/
@@ -720,6 +722,109 @@ printf("\n\nAfter getting into block, label is %d\n\n",CurrLabel);
 	}
 	return NoLabel;
 
+	case ProcedureNode:
+	/*
+				  OpenFrame
+	              Decorate (FK(T), MakeAddress)
+	              L2 := Makelabel
+	              Decorate (T,L2)
+	              Process kid 2 (WITHOUT GENERATING LIT INSTRUCTIONS)
+	                     using Currlabel
+	              Process kids 4,5 using Currlabel
+	              Process kid 6, taking L1 and returning Currlabel
+	              Process kid 7, using Currlabel
+	              CodeGen ( LLV 0, Currlabel)
+	              CodeGen ( RTN 1, Nolabel),
+	              CloseFrame
+	              return Nolabel
+	*/
+
+	OpenFrame();
+    Num = MakeAddress();
+    Decorate ( Child(T,1), Num);
+	Label2 = MakeLabel();
+	Decorate ( T, Label2);
+	
+	printf("\n\nProcedureNode: Decoration on procedure is %d\n\n",Decoration(T));
+	
+	VariableNode = Child(T, 2); /*Params Node*/
+	if (NodeName(VariableNode) == ParamsNode && NKids(VariableNode) > 0) { /*If there are parameters*/
+ 		for(Var = 1; Var <= NKids(VariableNode);Var++) { /*Go through every VarNode*/
+            for (Kid = 1; Kid < NKids(Child(VariableNode, Var)); Kid++) /*Go through every IdNode (except last type idnode) under VarNode*/
+            {
+               Num = MakeAddress();
+               Decorate ( Child(Child(Child(T,2),Var),Kid), Num);
+			   IncrementFrameSize(); /*Space on stack for the passed in arguments*/
+            }
+		}
+	}
+	
+ 	for(Kid=3; Kid<NKids(T)-1 && NodeName(Child(T,Kid)) != DclnsNode;Kid++) { /*Process kids 3 (consts), 4 (types) using Currlabel*/
+    	CurrLabel = ProcessNode (Child(T,Kid), CurrLabel);		 
+	}
+
+	if (NodeName(Child(T,NKids(T)-2)) == DclnsNode) {
+		/*
+		printf("\n\nBefore getting into dclns, label is %d\n\n",Label2);
+		*/
+		CurrLabel = ProcessNode (Child(T,NKids(T)-2), Label2); /*Process kid 6 (dclns), taking L1 and returning Currlabel*/
+		/*
+		printf("\n\nAfter getting into dclns, label is %d\n\n",CurrLabel);
+	*/
+	}
+	/*
+printf("\n\nBefore getting into block, label is %d\n\n",CurrLabel);
+	*/
+	CurrLabel = ProcessNode (Child(T, NKids(T)-1), CurrLabel); /*Process kid 6 (blockNode, second to last kid), using Currlabel and returning Currlabel*/
+	/*
+printf("\n\nAfter getting into block, label is %d\n\n",CurrLabel);
+*/
+	CodeGen1 (LLVOP, MakeStringOf(0), CurrLabel); /*should use CurrLabel*/
+	CodeGen1 (RTNOP, MakeStringOf(1), NoLabel);
+
+	CloseFrame();
+			 
+	return NoLabel;
+
+   	case CallNode:
+	/*CallNode statement for Procesdures!*/
+	/*
+	printf("\nframesize in call node is %d\n",FrameSize);
+	*/
+   	/*
+                 L2 := Decoration(Decoration(FK(Decoration(FK(T)))))
+                 for k:=2 to Nkids do
+                      Expression (Child(T,k), NoLabel)
+                 CodeGen (CODEOP, L2, Nolabel)
+                 DecrementFrameSize, once for each parameter
+                 CodeGen (CALLOP, MakeStringOf(FrameSize-1), NoLabel)
+   	*/
+	
+   		Label2 = Decoration(Decoration(Child(Decoration(Child(T, 1)), 1)));
+		
+		printf("\n\nCallNode: Decoration on procedure is %d\n\n",Label2);
+		
+		PrintTree(stdout,RootOfTree(1));
+		
+   	 	for(Kid=2; Kid<=NKids(T);Kid++) { /*Process arguments to function call*/
+			/*
+			printf("\nbefore processing arg%d in callNode, framesize %d\n",Kid,FrameSize);
+   	    	*/
+			Expression (Child(T,Kid), NoLabel);		 
+			/*
+			printf("\nafter processing arg%d in callNode, framesize %d\n",Kid,FrameSize);
+   		*/
+		}
+		
+   		CodeGen1 (CODEOP, Label2, CurrLabel);
+		
+   	 	for(Kid=2; Kid<=NKids(T);Kid++) { /*DecrementFrameSize, once for each parameter*/
+   	    	DecrementFrameSize();	 
+   		}
+		
+   		CodeGen1 (CALLOP, MakeStringOf(FrameSize-1), NoLabel);
+		
+   	return NoLabel;
 
       case DclnsNode :
 	   for (Kid = 1; Kid <= NKids(T); Kid++)

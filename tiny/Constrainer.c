@@ -1079,6 +1079,9 @@ Type := Expression ( FK(T) )
  Temp = Lookup(NodeName(Child(Child(T,1),1)), NodeName(Child(Child(T,1),1)));  /*Get the <id> node of procedure where it is defined*/
  /*
  printf("\n\nThe temp node is %d and it has %d children\n\n", NodeName(Temp),NKids(Temp));
+ */
+ 
+ Decorate(Child(T,1),Temp); /*Decorate <id> node of called procedure with the <id> node of procedure definition.*/
  
  /*
  printf("\n\n4Inside the callNode in Constrainer!\n\n");
