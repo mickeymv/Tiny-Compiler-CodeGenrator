@@ -76,9 +76,10 @@
 #define ParamsNode 60
 #define CallNode 61
 #define ReturnNode 62
+#define ProcedureNode 63
 
 
-#define NumberOfNodes  62
+#define NumberOfNodes  63
 
 #define IdInDeclaration  0
 #define IdInUse  1
@@ -103,7 +104,7 @@ char *node[] = { "program", "types", "type", "dclns",
 				"<char>", "consts", "const", "<string>", "succ",
 				"pred", "ord", "chr", "..", "<subprg_ctxt>", 
 				"subprogs", "function", "params", "call", 
-				"return"
+				"return", "procedure"
                 };
 
 
@@ -131,6 +132,7 @@ void Constrain(void)
 #endif
    
    /* 
+   PrintAllStrings(stdout);
    printf("\n\nThe intial tree after parsing, before constraining is...\n\n");  
    PrintTree(stdout,RootOfTree(1));
    */
@@ -140,8 +142,14 @@ void Constrain(void)
    /* 
    printf("\n\nThe final tree after constraining is...\n\n");  
    PrintTree(stdout,RootOfTree(1));
+   PrintAllStrings(stdout);
+   
+   PrintDclnTable(stdout);
    */
-    
+   
+   
+   
+       
    Tree_File = fopen("_TREE", "w");  
    Write_Trees();
    fclose (Tree_File);                   
@@ -531,6 +539,7 @@ UserType Expression (TreeNode T)
 	   	return Type1;
 	   
  	   case CallNode:
+	   /*This is call Expressions for calling functions*/
 	   /*
 	   	printf("\n\nInside the callNode in Constrainer!\n\n");
 		*/
@@ -540,7 +549,7 @@ UserType Expression (TreeNode T)
 		 */
 		 if (ModeOf(Child(T,1),IdInUse) != FunctionNode) {
              ErrorHeader(Child(T,1));
-             printf ("Not a function!\n");
+             printf ("Not a Function!\n");
              printf ("\n");
 		 } else {
 		 /*
@@ -562,12 +571,15 @@ UserType Expression (TreeNode T)
  	   	 /*
 		 printf("\n\n5Inside the callNode in Constrainer!\n\n");
 		 */
+		 
 		 ParamsCount =0;
 		 
 		 StartingArgument =2;
 		 
          for (Kid = 1; Kid <= NKids(Temp1); Kid++) {/*iterate through all var nodes under params*/
-			 
+			 /* 
+			 printf("\n\n1: Kid=%d\n\n",Kid);
+			 */
 			 /*if it enters here, it means there function parameters ('var' children under params node) 
 			 and therefore there should be arguments which should be passed to this function.*/
 			 
@@ -583,6 +595,7 @@ UserType Expression (TreeNode T)
 			 }
 
 			 numberOfParametersPerType = 0;
+			 
 			 for(GKid=1; GKid < NKids(Child(Temp1,Kid)); GKid++) {/*iterate through all the id nodes (except the last node which is a return type) under each individual var node*/
 				 /* 
 				 printf("\n\nProcessing var #%d of var!\n\n",GKid);
@@ -590,23 +603,37 @@ UserType Expression (TreeNode T)
 				 ParamsCount++; 
 				 numberOfParametersPerType++;
 			 }
+			 /* 
+			 printf("\n\ni ranges from %d to %d \n\n", StartingArgument,(StartingArgument+numberOfParametersPerType)-1);
+			 */
 			 for(i=StartingArgument; i<(StartingArgument+numberOfParametersPerType); i++) {
-				 if(Expression(Child(T,i)) != Decoration(Decoration(Child(Child(Temp1,Kid),GKid)))){
+				 /* 
+				 printf("\n\nChecking expression of argument %d, for parameter %d\n\n",Child(T,i),Child(Child(Temp1,Kid),1));
+				 */
+				 if(Expression(Child(T,i)) != Decoration(Child(Child(Temp1,Kid),1))){
+				/*	
+					 printf("\n\nThe type of arg%d is %d, the type of parameter%d is %d\n\n",i,Expression(Child(T,i)),1,Decoration(Child(Child(Temp1,Kid),1)));
+					 */ 
 		             ErrorHeader(Child(T,1));
-		             printf ("The type of the function argument does not match its parameter!\n");
+					 /*
+					 printf ("Procedure call!\n");
+		             */
+					 printf ("The type of the function argument does not match its parameter!\n");
 		             printf ("\n");
 				 }
 			 }
+			 StartingArgument = StartingArgument + numberOfParametersPerType;
 		 }
 		 /*
 		 printf("\n\n6Inside the callNode in Constrainer!\n\n");
 		 */
-		 if (ParamsCount != NKids(T)-1 && (NodeName(Child(T,2)) != NullNode)) {  /*check if The argument count does matches the parameter count*/
+		 if (ParamsCount != NKids(T)-1 && (NodeName(Child(T,2)) != NullNode)) {  /*check if The argument count matches the parameter count*/
              ErrorHeader(Child(T,1));
              printf ("The argument count does not match the parameter count!\n");
              printf ("\n");
 		 }
-	 }
+	 	}
+ 
 		 /*
 		 printf("\n\nDone with the callNode in Constrainer!\n\n");
 		 */
@@ -627,7 +654,7 @@ UserType Expression (TreeNode T)
 
 void ProcessNode (TreeNode T) 
 {
-   int Kid, N;
+   int Kid, N, ParamsCount, StartingArgument, numberOfParametersPerType, GKid, i;
    String Name1, Name2, Mode, VarTypeName;
    TreeNode Decl, Type, Type1, Type2, Type3, Temp, constNode, idFirstChildNode, idSecondChildNode, idNameFirstGrandChildNode, idNodeNameFirstGrandChildNode, idNameSecondGrandChildNode, idNodeNameSecondGrandChild, intNode, charNode;
    TreeNode ConstDeclareIdNode, ConstDeclareNameNode, ConstValueIdNode, ConstValueName;
@@ -938,6 +965,51 @@ void ProcessNode (TreeNode T)
 	
 	CloseScope();
 	 break;
+	 
+  case ProcedureNode :
+  /*
+  		NodeName ( FK(FK(T)) ) = NodeName ( FK(LK(T)) ) ?
+             Enter "f" with FK(T)
+             OpenScope
+             Enter "<subprog_contxt>" with T
+             T1 := Lookup(R)
+             Decorate ( FK(T), Decoration(T1) )
+             Decorate ( FK(FK(T)), T)
+             Process kids 2,4,5,6,7
+             CloseScope
+  */
+  
+  /*
+	printf("\n\nInside the ProcedureNode in Constrainer!\n\n");
+  */
+     if (NodeName(Child(Child(T,1),1)) != NodeName(Child(Child(T,NKids(T)),1)))  /*Procedure names should match*/
+     {
+        ErrorHeader(T);
+        printf ("Procedure names at the start and end should match in the definition!\n");
+        printf ("\n");
+     }		   
+  
+  idFirstChildNode = Child(T, 1);
+idNameFirstGrandChildNode = Child(idFirstChildNode, 1);
+idNodeNameFirstGrandChildNode = NodeName(idNameFirstGrandChildNode);
+DTEnter (idNodeNameFirstGrandChildNode, idFirstChildNode, T); /*Entry in DT for the procedure name pointing to <id> declaration*/
+OpenScope();
+
+DTEnter(SUBPRG_CTXT,T,T);
+/*
+Type1 = Lookup (NodeName(Child(Child(T,3),1)),Child(T,3)); /*Lookup return type*/
+/*
+Decorate(idFirstChildNode, Decoration(Type1)); /*Decorate function's <id> node with decoration of return type*/
+
+Decorate(idNameFirstGrandChildNode, T); /*Decorate the function's name node with the function node*/
+
+ProcessNode (Child(T,2)); /*Process the params node*/
+
+   for (Kid = 3; Kid < NKids(T); Kid++) /*Process the rest of the kid nodes except the last id node*/
+      ProcessNode (Child(T,Kid));
+
+CloseScope();
+ break;
 			   
     case ParamsNode :
 	/*
@@ -981,6 +1053,96 @@ Type := Expression ( FK(T) )
 	/*TODO:? Check if the value in the function name is the same type as return type?*/
 }
  break;
+		  
+ case CallNode:
+ /*This is call STATEMENTs for calling procedures*/
+ /*
+ 	printf("\n\nInside the callNode in Constrainer!\n\n");
+*/
+
+ if (ModeOf(Child(T,1),IdInUse) != ProcedureNode) {
+       ErrorHeader(Child(T,1));
+       printf ("Not a Procedure!\n");
+       printf ("\n");
+ } else {
+ /*
+ printf("\n\n3Inside the callNode in Constrainer!\n\n");
+ */
+ /*
+        Temp := Decoration ( FK(T) )
+        Temp := SK ( Decoration ( FK ( Temp ) ) ) { params node }
+        Count # of parameters under Temp, compare with Nkids(T)-1
+        Compare type of each formal parameter with
+                Expression ( Child (T,i) )
+ */
+ 
+ Temp = Lookup(NodeName(Child(Child(T,1),1)), NodeName(Child(Child(T,1),1)));  /*Get the <id> node of procedure where it is defined*/
+ /*
+ printf("\n\nThe temp node is %d and it has %d children\n\n", NodeName(Temp),NKids(Temp));
+ 
+ /*
+ printf("\n\n4Inside the callNode in Constrainer!\n\n");
+ */
+ Temp = Child(Decoration(Child(Temp, 1)), 2); /*get the 'params' node of procedure where it is defined*/
+ 	 /*
+ printf("\n\n5Inside the callNode in Constrainer!\n\n");
+ */
+ 
+ ParamsCount =0;
+ 
+ StartingArgument =2;
+ 
+ /*
+ printf("\n\nThe temp node is %d and it has %d children\n\n", NodeName(Temp),NKids(Temp));
+ */
+ 
+   for (Kid = 1; Kid <= NKids(Temp); Kid++) {/*iterate through all var nodes under params*/
+	 
+	 /*if it enters here, it means there are procedure parameters ('var' children under params node) 
+	 and therefore there should be arguments which should be passed to this procedure.*/
+	 
+	 /*
+	 printf("\n\nProcessing var #%d of params!\n\n",Kid);
+	 */
+	 
+	 if (NodeName(Child(T,2)) == NullNode) { /*This means there were no arguemnts provided in the procedure call, but it is expected, so break!*/
+           ErrorHeader(Child(T,1));
+           printf ("Procedure requires arguments!\n");
+           printf ("\n");
+		 break;
+	 }
+
+	 numberOfParametersPerType = 0;
+	 for(GKid=1; GKid < NKids(Child(Temp,Kid)); GKid++) {/*iterate through all the id nodes (except the last node which is a return type) under each individual var node*/
+		 /* 
+		 printf("\n\nProcessing var #%d of var!\n\n",GKid);
+		 */
+		 ParamsCount++; 
+		 numberOfParametersPerType++;
+	 }
+	 for(i=StartingArgument; i<(StartingArgument+numberOfParametersPerType); i++) {
+		 if(Expression(Child(T,i)) != Decoration(Child(Child(Temp,Kid),1))){
+             ErrorHeader(Child(T,1));
+             printf ("The type of the function argument does not match its parameter!\n");
+             printf ("\n");
+		 }
+	 }
+	              StartingArgument = StartingArgument + numberOfParametersPerType;
+ }
+ /*
+ printf("\n\n6Inside the callNode in Constrainer!\n\n");
+ */
+ if (ParamsCount != NKids(T)-1 && (NodeName(Child(T,2)) != NullNode)) {  /*check if The argument count matches the parameter count*/
+       ErrorHeader(Child(T,1));
+       printf ("The argument count does not match the parameter count!\n");
+       printf ("\n");
+ }
+
+}
+ /*
+ printf("\n\nDone with the callNode in Constrainer!\n\n");
+ */
+ 	break;	
 		  
 		  			   
       case VarNode :
@@ -1047,12 +1209,28 @@ Type := Expression ( FK(T) )
 		 /*
 		 printf("\nMode of leftHandId is %d\n",ModeOf(LeftHandId, IdInUse));
 		 */
-		 if (ModeOf(LeftHandId, IdInUse) != VarNode && ModeOf(LeftHandId, IdInUse) != FunctionNode) { /*TODO: Make sure for function name variable is done within that function*/
+		 if (ModeOf(LeftHandId, IdInUse) != VarNode && ModeOf(LeftHandId, IdInUse) != FunctionNode) { 
              ErrorHeader(Child(T,1));
              printf ("Left hand side of assignment should be a var!\n");
              printf ("\n");
 		 }
-
+		
+		 /*
+		 PrintDclnTable(stdout);
+		 printf ("\n\n1\n\n");
+		 */
+		 if (ModeOf(LeftHandId, IdInUse) == FunctionNode && Decoration(LeftHandId) != Lookup(NodeName(Child(LeftHandId,1)),Child(LeftHandId,1))) { /* Make sure for function name variable is done within that function*/
+			 /*
+			 printf ("\n\n2\n\n");
+             */
+			 ErrorHeader(Child(Child(T,1),1));
+             printf ("Left hand side of assignment cannot be a function var outside its function definition!\n");
+             printf ("\n");
+		 }
+		 /*
+		 printf ("\n\n3\n\n");
+*/
+		 
          if (Type1 != Type2)
          {
             ErrorHeader(T);

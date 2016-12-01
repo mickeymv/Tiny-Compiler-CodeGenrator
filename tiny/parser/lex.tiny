@@ -26,6 +26,7 @@ STR     \"[^\"]*\"
 \n         	{ column = 1; line++; }
 "program"   { return rule(PROGRAM); }
 "function"   { return rule(FUNCTION); }
+"procedure"   { return rule(PROCEDURE); }
 "return"   { return rule(RETURN); }
 "var" 		{ return rule(VAR); }
 "const" 	{ return rule(CONST); }
