@@ -1222,7 +1222,7 @@ Type := Expression ( FK(T) )
 		 PrintDclnTable(stdout);
 		 printf ("\n\n1\n\n");
 		 */
-		 if (ModeOf(LeftHandId, IdInUse) == FunctionNode && Decoration(LeftHandId) != Lookup(NodeName(Child(LeftHandId,1)),Child(LeftHandId,1))) { /* Make sure for function name variable is done within that function*/
+		 if (ModeOf(LeftHandId, IdInUse) == FunctionNode && Lookup(SUBPRG_CTXT,LeftHandId) != Decoration(Child(Lookup(NodeName(Child(LeftHandId,1)),Child(LeftHandId,1)),1))) { /* Make sure for function name variable is done within that function*/
 			 /*
 			 printf ("\n\n2\n\n");
              */
