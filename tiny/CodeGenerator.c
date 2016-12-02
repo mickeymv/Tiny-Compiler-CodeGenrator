@@ -745,7 +745,9 @@ printf("\n\nAfter getting into block, label is %d\n\n",CurrLabel);
 	Label2 = MakeLabel();
 	Decorate ( T, Label2);
 	
+	/*
 	printf("\n\nProcedureNode: Decoration on procedure is %d\n\n",Decoration(T));
+	*/
 	
 	VariableNode = Child(T, 2); /*Params Node*/
 	if (NodeName(VariableNode) == ParamsNode && NKids(VariableNode) > 0) { /*If there are parameters*/
@@ -802,9 +804,10 @@ printf("\n\nAfter getting into block, label is %d\n\n",CurrLabel);
 	
    		Label2 = Decoration(Decoration(Child(Decoration(Child(T, 1)), 1)));
 		
+		/*
 		printf("\n\nCallNode: Decoration on procedure is %d\n\n",Label2);
-		
 		PrintTree(stdout,RootOfTree(1));
+		*/
 		
    	 	for(Kid=2; Kid<=NKids(T);Kid++) { /*Process arguments to function call*/
 			/*

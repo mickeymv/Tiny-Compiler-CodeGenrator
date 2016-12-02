@@ -939,7 +939,7 @@ void ProcessNode (TreeNode T)
 	  */
       if (NodeName(Child(Child(T,1),1)) != NodeName(Child(Child(T,NKids(T)),1)))  /*Function names should match*/
       {
-         ErrorHeader(T);
+         ErrorHeader(Child(Child(T,NKids(T)),1));
          printf ("Function names at the start and end should match in the definition!\n");
          printf ("\n");
       }		   
