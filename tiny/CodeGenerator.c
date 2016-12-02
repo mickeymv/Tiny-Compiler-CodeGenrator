@@ -801,7 +801,6 @@ printf("\n\nAfter getting into block, label is %d\n\n",CurrLabel);
                  DecrementFrameSize, once for each parameter
                  CodeGen (CALLOP, MakeStringOf(FrameSize-1), NoLabel)
    	*/
-	
    		Label2 = Decoration(Decoration(Child(Decoration(Child(T, 1)), 1)));
 		
 		/*
@@ -809,7 +808,11 @@ printf("\n\nAfter getting into block, label is %d\n\n",CurrLabel);
 		PrintTree(stdout,RootOfTree(1));
 		*/
 		
-   	 	for(Kid=2; Kid<=NKids(T);Kid++) { /*Process arguments to function call*/
+		if (NKids(T)>1) {
+			Expression (Child(T,2), CurrLabel);
+		}
+		
+   	 	for(Kid=3; Kid<=NKids(T);Kid++) { /*Process arguments to function call*/
 			/*
 			printf("\nbefore processing arg%d in callNode, framesize %d\n",Kid,FrameSize);
    	    	*/
@@ -818,14 +821,16 @@ printf("\n\nAfter getting into block, label is %d\n\n",CurrLabel);
 			printf("\nafter processing arg%d in callNode, framesize %d\n",Kid,FrameSize);
    		*/
 		}
-		
-   		CodeGen1 (CODEOP, Label2, CurrLabel);
-		
+		if (NKids(T)>1) {
+   		CodeGen1 (CODEOP, Label2, NoLabel);
+	} else {
+		CodeGen1 (CODEOP, Label2, CurrLabel);
+	}
    	 	for(Kid=2; Kid<=NKids(T);Kid++) { /*DecrementFrameSize, once for each parameter*/
    	    	DecrementFrameSize();	 
    		}
 		
-   		CodeGen1 (CALLOP, MakeStringOf(FrameSize-1), NoLabel);
+   		CodeGen1 (CALLOP, MakeStringOf(FrameSize), NoLabel);
 		
    	return NoLabel;
 
