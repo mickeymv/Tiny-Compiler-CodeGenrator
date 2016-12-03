@@ -542,6 +542,7 @@ void Expression (TreeNode T, Clabel CurrLabel)
    		CodeGen1 (LITOP, MakeStringOf(0), CurrLabel);
    		Label2 = Decoration(Decoration(Child(Decoration(Child(T, 1)), 1)));
 		
+		if(NKids>T && NodeName(Child(T,2)) != NullNode) {
    	 	for(Kid=2; Kid<=NKids(T);Kid++) { /*Process arguments to function call*/
 			/*
 			printf("\nbefore processing arg%d in callNode, framesize %d\n",Kid,FrameSize);
@@ -551,12 +552,15 @@ void Expression (TreeNode T, Clabel CurrLabel)
 			printf("\nafter processing arg%d in callNode, framesize %d\n",Kid,FrameSize);
    		*/
 		}
-		
+	}
+	
    		CodeGen1 (CODEOP, Label2, NoLabel);
 		
+		if(NKids>T && NodeName(Child(T,2)) != NullNode) {
    	 	for(Kid=2; Kid<=NKids(T);Kid++) { /*DecrementFrameSize, once for each parameter*/
    	    	DecrementFrameSize();	 
    		}
+	}
 		
    		CodeGen1 (CALLOP, MakeStringOf(FrameSize-1), NoLabel);
 		
@@ -733,8 +737,8 @@ printf("\n\nAfter getting into block, label is %d\n\n",CurrLabel);
 	              Process kids 4,5 using Currlabel
 	              Process kid 6, taking L1 and returning Currlabel
 	              Process kid 7, using Currlabel
-	              CodeGen ( LLV 0, Currlabel)
-	              CodeGen ( RTN 1, Nolabel),
+
+	              CodeGen ( RTN 0, Nolabel),
 	              CloseFrame
 	              return Nolabel
 	*/
@@ -781,8 +785,8 @@ printf("\n\nBefore getting into block, label is %d\n\n",CurrLabel);
 	/*
 printf("\n\nAfter getting into block, label is %d\n\n",CurrLabel);
 */
-	CodeGen1 (LLVOP, MakeStringOf(0), CurrLabel); /*should use CurrLabel*/
-	CodeGen1 (RTNOP, MakeStringOf(1), NoLabel);
+
+	CodeGen1 (RTNOP, MakeStringOf(0), CurrLabel);
 
 	CloseFrame();
 			 
@@ -808,7 +812,13 @@ printf("\n\nAfter getting into block, label is %d\n\n",CurrLabel);
 		PrintTree(stdout,RootOfTree(1));
 		*/
 		
-		if (NKids(T)>1) {
+		/*
+			For Procedures, do not leave space on stack for the procedure names as they won't be used
+		as return variables. Therefore, when generating the call instrction, no need to decrease the
+		frame size.
+		*/
+		
+		if (NKids(T)>1 && NodeName(Child(T,2)) != NullNode) {
 			Expression (Child(T,2), CurrLabel);
 		}
 		
@@ -821,14 +831,16 @@ printf("\n\nAfter getting into block, label is %d\n\n",CurrLabel);
 			printf("\nafter processing arg%d in callNode, framesize %d\n",Kid,FrameSize);
    		*/
 		}
-		if (NKids(T)>1) {
+		if (NKids(T)>1 && NodeName(Child(T,2)) != NullNode) {
    		CodeGen1 (CODEOP, Label2, NoLabel);
 	} else {
 		CodeGen1 (CODEOP, Label2, CurrLabel);
 	}
+	if (NodeName(Child(T,2)) != NullNode) {
    	 	for(Kid=2; Kid<=NKids(T);Kid++) { /*DecrementFrameSize, once for each parameter*/
    	    	DecrementFrameSize();	 
    		}
+	}
 		
    		CodeGen1 (CALLOP, MakeStringOf(FrameSize), NoLabel);
 		
