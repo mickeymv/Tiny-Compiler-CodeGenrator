@@ -1192,11 +1192,9 @@ printf("\n\nAfter getting into block, label is %d\n\n",CurrLabel);
    			CodeGen0 (DUPOP, NoLabel);
    			IncrementFrameSize();
 			Expression(Child(Child(Child(T,Kid),1),1), NoLabel); /*  Put the lower case range literal 'l' on top of the stack */
-			IncrementFrameSize();
 			CodeGen1 (BOPOP, BGE, NoLabel);
 			DecrementFrameSize();
 			CodeGen0 (SWAPOP, NoLabel);					
-			IncrementFrameSize();			
 			Expression(Child(Child(Child(T,Kid),1),2), NoLabel); /*  Put the upper case range literal 'u' on top of the stack */
 			CodeGen1 (BOPOP, BLE, NoLabel);
 			DecrementFrameSize();
