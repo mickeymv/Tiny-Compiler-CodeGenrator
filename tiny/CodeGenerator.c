@@ -1219,8 +1219,10 @@ printf("\n\nAfter getting into block, label is %d\n\n",CurrLabel);
 			CascadeLabel = ProcessNode(Child(Child(T,NKids(T)),2),NoLabel); /*  Process statement within the case_clause */
 			CodeGen1 (GOTOOP, ExitLabel, CascadeLabel);
 			CodeGen1 (POPOP, MakeStringOf(1), NextLabel);
+			DecrementFrameSize();
 	   } else if (NodeName(Child(T,NKids(T))) == OtherwiseNode) {
 	   		CodeGen1 (POPOP, MakeStringOf(1), NextLabel);
+			DecrementFrameSize();
 			Label1 = ProcessNode(Child(Child(T,NKids(T)),1),NoLabel); /*  Process statement within the case_clause */
 	   	 	CodeGen0 (NOP, Label1);
 	   }
