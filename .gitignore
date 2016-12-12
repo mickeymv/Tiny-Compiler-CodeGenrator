@@ -48,3 +48,10 @@ tiny/_CODE
 tiny/_die_
 tiny/_TEXEC
 tiny/_TREE
+tiny/lex.tiny
+tiny/parse.tiny
+tiny/project4.tar
+tiny/project4/CodeGenerator.c
+tiny/project4/Constrainer.c
+tiny/project4/lex.tiny
+tiny/project4/parse.tiny
